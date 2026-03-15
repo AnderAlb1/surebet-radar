@@ -371,43 +371,26 @@ return [{ id: Date.now(), time: new Date().toLocaleTimeString(), match: event.ho
 });
 }, [soundOn, stake]);
 
-var fetchOdds = useCallback(function(currentSports) {
-var active = (currentSports || sports).filter(function(s) { return s.active; });
-if (!API_KEY) { setError("Falta VITE_ODDS_API_KEY en Vercel Settings"); setLoading(false); return; }
-if (active.length === 0) { setEvents([]); setLoading(false); return; }
-setScanning(true);
-var allEvents = [];
-var pending = active.length;
-active.forEach(function(sportInfo) {
+var fetchOdds = useCallback(function() {
+  setScanning(true);
+  fetch("https://api.the-odds-api.com/v4/sports/basketball_nba/odds?apiKey=02daecad21992e7923491701827d3d59&regions=eu&markets=h2h&oddsFormat=decimal")
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      console.log("DATA:", data.length, "eventos");
+      var parsed = parseApiEvents(data, { key: "basketball_nba", label: "NBA", sport: "Baloncesto" });
+      setEvents(parsed);
+      setLoading(false);
+      setScanning(false);
+      setLastScan(new Date());
+    })
+    .catch(function(err) {
+      console.log("ERROR:", err.message);
+      setError(err.message);
+      setLoading(false);
+      setScanning(false);
+    });
+}, []);
 
-var url = API_BASE + "/sports/" + sportInfo.key + "/odds?apiKey=" + API_KEY + "&regions=eu,us&markets=h2h&oddsFormat=decimal";
-
-fetch(url)
-.then(function(res) {
-var remaining = res.headers.get("x-requests-remaining");
-if (remaining) setRequestsLeft(parseInt(remaining));
-if (!res.ok) throw new Error("Error " + res.status);
-return res.json();
-})
-.then(function(data) { allEvents = allEvents.concat(parseApiEvents(data, sportInfo)); })
-.catch(function(err) { console.warn("Error " + sportInfo.key + ":", err.message); })
-.finally(function() {
-pending;
-if (pending === 0) {
-setEvents(function() {
-allEvents.forEach(function(e) {
-var best = getBestOdds(e);
-var result = calcArbitrage(best);
-if (result.isSure && !prevSurebets.current.has(e.id)) { prevSurebets.current.add(e.id); triggerAlert(e, result.margin); }
-else if (!result.isSure) prevSurebets.current.delete(e.id);
-});
-return allEvents;
-});
-setLoading(false); setScanning(false); setLastScan(new Date()); setError(null);
-}
-});
-});
-}, [sports, triggerAlert]);
 
 useEffect(function() { fetchOdds(ALL_SPORTS.filter(function(s) { return s.active; })); }, []);
 
