@@ -1,66 +1,66 @@
-import { useState, useEffect, useRef, useCallback } from “react”;
+import { useState, useEffect, useRef, useCallback } from "react";
 
 const BOOKMAKERS_CO = {
 Rushbet: {
-url: “https://www.rushbet.co”,
-color: “#e8000d”,
-metodos: [“Nequi”, “Daviplata”, “Efecty”, “PSE”],
-retiro: “Nequi directo 2h”,
-minRetiro: “$20.000”,
+url: "https://www.rushbet.co",
+color: "#e8000d",
+metodos: ["Nequi", "Daviplata", "Efecty", "PSE"],
+retiro: "Nequi directo 2h",
+minRetiro: "$20.000",
 app: true,
-nota: “Mejor retiro con Nequi, aprobacion en 2 horas”
+nota: "Mejor retiro con Nequi, aprobacion en 2 horas"
 },
 Wplay: {
-url: “https://www.wplay.co”,
-color: “#00a651”,
-metodos: [“Nequi”, “PSE”, “Efecty”, “Bancolombia”],
-retiro: “Transferencia 24-72h”,
-minRetiro: “$10.000”,
+url: "https://www.wplay.co",
+color: "#00a651",
+metodos: ["Nequi", "PSE", "Efecty", "Bancolombia"],
+retiro: "Transferencia 24-72h",
+minRetiro: "$10.000",
 app: true,
-nota: “Mejor bono bienvenida: $200.000 COP”
+nota: "Mejor bono bienvenida: $200.000 COP"
 },
 Betsson: {
-url: “https://www.betsson.com.co”,
-color: “#f5a623”,
-metodos: [“Nequi”, “PSE”, “Daviplata”, “Efecty”],
-retiro: “Nequi 1-3 dias habiles”,
-minRetiro: “$5.000”,
+url: "https://www.betsson.com.co",
+color: "#f5a623",
+metodos: ["Nequi", "PSE", "Daviplata", "Efecty"],
+retiro: "Nequi 1-3 dias habiles",
+minRetiro: "$5.000",
 app: true,
-nota: “30 deportes, streaming en vivo incluido”
+nota: "30 deportes, streaming en vivo incluido"
 },
 Sportium: {
-url: “https://www.sportium.com.co”,
-color: “#0055a5”,
-metodos: [“PSE”, “Efecty”, “Nequi”, “Puntos fisicos”],
-retiro: “Transferencia 24-48h”,
-minRetiro: “$1.000”,
+url: "https://www.sportium.com.co",
+color: "#0055a5",
+metodos: ["PSE", "Efecty", "Nequi", "Puntos fisicos"],
+retiro: "Transferencia 24-48h",
+minRetiro: "$1.000",
 app: true,
-nota: “Excelente para apuestas en vivo”
+nota: "Excelente para apuestas en vivo"
 },
 Rivalo: {
-url: “https://www.rivalo.co”,
-color: “#c0392b”,
-metodos: [“PSE”, “Nequi”, “AstroPay”, “Efecty”],
-retiro: “Transferencia 24-72h”,
-minRetiro: “$10.000”,
+url: "https://www.rivalo.co",
+color: "#c0392b",
+metodos: ["PSE", "Nequi", "AstroPay", "Efecty"],
+retiro: "Transferencia 24-72h",
+minRetiro: "$10.000",
 app: false,
-nota: “Buenas cuotas en futbol colombiano”
+nota: "Buenas cuotas en futbol colombiano"
 },
 Luckia: {
-url: “https://www.luckia.co”,
-color: “#8e44ad”,
-metodos: [“PSE”, “Nequi”, “Efecty”, “DaviPlata”],
-retiro: “Transferencia 24-48h”,
-minRetiro: “$5.000”,
+url: "https://www.luckia.co",
+color: "#8e44ad",
+metodos: ["PSE", "Nequi", "Efecty", "DaviPlata"],
+retiro: "Transferencia 24-48h",
+minRetiro: "$5.000",
 app: true,
-nota: “Especialista en mercado colombiano”
+nota: "Especialista en mercado colombiano"
 }
 };
 
 const BASE_EVENTS = [
 {
-id: 1, sport: “Futbol”, league: “Liga BetPlay Dimayor”,
-home: “Atletico Nacional”, away: “Ind. Medellin”, time: “Hoy 20:00”,
+id: 1, sport: "Futbol", league: "Liga BetPlay Dimayor",
+home: "Atletico Nacional", away: "Ind. Medellin", time: "Hoy 20:00",
 odds: {
 Rushbet:  { home: 2.10, draw: 3.20, away: 3.40 },
 Wplay:    { home: 2.00, draw: 3.35, away: 3.60 },
@@ -71,8 +71,8 @@ Luckia:   { home: 2.05, draw: 3.50, away: 3.45 }
 }
 },
 {
-id: 2, sport: “Futbol”, league: “Liga BetPlay Dimayor”,
-home: “Millonarios”, away: “Santa Fe”, time: “Manana 18:00”,
+id: 2, sport: "Futbol", league: "Liga BetPlay Dimayor",
+home: "Millonarios", away: "Santa Fe", time: "Manana 18:00",
 odds: {
 Rushbet:  { home: 2.30, draw: 3.10, away: 2.90 },
 Wplay:    { home: 2.20, draw: 3.20, away: 3.10 },
@@ -82,8 +82,8 @@ Luckia:   { home: 2.35, draw: 3.05, away: 2.95 }
 }
 },
 {
-id: 3, sport: “Futbol”, league: “Copa Libertadores”,
-home: “America de Cali”, away: “Flamengo”, time: “Hoy 21:30”,
+id: 3, sport: "Futbol", league: "Copa Libertadores",
+home: "America de Cali", away: "Flamengo", time: "Hoy 21:30",
 odds: {
 Rushbet:  { home: 4.00, draw: 3.50, away: 1.80 },
 Wplay:    { home: 4.20, draw: 3.40, away: 1.75 },
@@ -93,8 +93,8 @@ Rivalo:   { home: 3.80, draw: 3.70, away: 1.90 }
 }
 },
 {
-id: 4, sport: “Tenis”, league: “ATP Masters”,
-home: “Galan”, away: “Djokovic”, time: “Manana 14:00”,
+id: 4, sport: "Tenis", league: "ATP Masters",
+home: "Galan", away: "Djokovic", time: "Manana 14:00",
 odds: {
 Rushbet:  { home: 3.50, away: 1.30 },
 Wplay:    { home: 3.70, away: 1.25 },
@@ -104,8 +104,8 @@ Luckia:   { home: 3.30, away: 1.40 }
 }
 },
 {
-id: 5, sport: “Futbol”, league: “Copa Sudamericana”,
-home: “Junior”, away: “Boca Juniors”, time: “Manana 19:15”,
+id: 5, sport: "Futbol", league: "Copa Sudamericana",
+home: "Junior", away: "Boca Juniors", time: "Manana 19:15",
 odds: {
 Rushbet:  { home: 3.10, draw: 3.20, away: 2.10 },
 Wplay:    { home: 3.30, draw: 3.10, away: 2.00 },
@@ -115,8 +115,8 @@ Luckia:   { home: 3.40, draw: 3.00, away: 1.95 }
 }
 },
 {
-id: 6, sport: “Baloncesto”, league: “NBA”,
-home: “Miami Heat”, away: “Toronto Raptors”, time: “Hoy 01:00”,
+id: 6, sport: "Baloncesto", league: "NBA",
+home: "Miami Heat", away: "Toronto Raptors", time: "Hoy 01:00",
 odds: {
 Rushbet:  { home: 1.85, away: 2.00 },
 Wplay:    { home: 1.95, away: 1.90 },
@@ -125,8 +125,8 @@ Sportium: { home: 2.00, away: 1.85 }
 }
 },
 {
-id: 7, sport: “Futbol”, league: “Liga BetPlay Dimayor”,
-home: “Deportivo Cali”, away: “Bucaramanga”, time: “Dom 16:00”,
+id: 7, sport: "Futbol", league: "Liga BetPlay Dimayor",
+home: "Deportivo Cali", away: "Bucaramanga", time: "Dom 16:00",
 odds: {
 Rushbet:  { home: 1.90, draw: 3.30, away: 3.80 },
 Wplay:    { home: 2.00, draw: 3.20, away: 3.60 },
@@ -139,10 +139,10 @@ Luckia:   { home: 2.05, draw: 3.15, away: 3.55 }
 
 function getBestOdds(event) {
 const isTwoWay = !Object.values(event.odds)[0].draw;
-const outcomes = isTwoWay ? [“home”, “away”] : [“home”, “draw”, “away”];
+const outcomes = isTwoWay ? ["home", "away"] : ["home", "draw", "away"];
 const result = {};
 outcomes.forEach(function(o) {
-result[o] = { odd: 0, book: “” };
+result[o] = { odd: 0, book: "" };
 Object.entries(event.odds).forEach(function(entry) {
 var book = entry[0];
 var odds = entry[1];
@@ -179,7 +179,7 @@ var f = pair[0]; var t = pair[1];
 var o = ctx.createOscillator();
 var g = ctx.createGain();
 o.connect(g); g.connect(ctx.destination);
-o.frequency.value = f; o.type = “sine”;
+o.frequency.value = f; o.type = "sine";
 g.gain.setValueAtTime(0, ctx.currentTime + t);
 g.gain.linearRampToValueAtTime(0.4, ctx.currentTime + t + 0.01);
 g.gain.linearRampToValueAtTime(0, ctx.currentTime + t + 0.2);
@@ -209,61 +209,61 @@ return function() { clearInterval(iv); };
 
 var bestOdds = getBestOdds(alert.event);
 var stakes = calcStakes(bestOdds, stake);
-var labels = { home: alert.event.home, draw: “Empate”, away: alert.event.away };
+var labels = { home: alert.event.home, draw: "Empate", away: alert.event.away };
 var s = Math.ceil((progress / 100) * (DURATION / 1000));
 var profit = Math.round(stake * Math.abs(alert.margin) / 100);
 
 return (
 <div style={{
-background: “linear-gradient(135deg,#001a0f,#001530)”,
-border: “1px solid #00e5a060”,
-borderLeft: “4px solid #00e5a0”,
+background: "linear-gradient(135deg,#001a0f,#001530)",
+border: "1px solid #00e5a060",
+borderLeft: "4px solid #00e5a0",
 borderRadius: 14,
-padding: “14px 16px”,
+padding: "14px 16px",
 marginBottom: 10,
-boxShadow: “0 8px 40px rgba(0,229,160,.15)”,
-position: “relative”,
-overflow: “hidden”
+boxShadow: "0 8px 40px rgba(0,229,160,.15)",
+position: "relative",
+overflow: "hidden"
 }}>
-<div style={{ display: “flex”, justifyContent: “space-between”, marginBottom: 8 }}>
-<div style={{ display: “flex”, gap: 6, alignItems: “center” }}>
-<span style={{ background: “#00e5a0”, color: “#001a0f”, fontSize: 9, fontWeight: 900, padding: “2px 7px”, borderRadius: 5 }}>
+<div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+<div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+<span style={{ background: "#00e5a0", color: "#001a0f", fontSize: 9, fontWeight: 900, padding: "2px 7px", borderRadius: 5 }}>
 SUREBET
 </span>
-<span style={{ fontSize: 10, color: “#4aaa80” }}>{alert.event.league}</span>
+<span style={{ fontSize: 10, color: "#4aaa80" }}>{alert.event.league}</span>
 </div>
-<div style={{ display: “flex”, gap: 8, alignItems: “center” }}>
-<span style={{ fontSize: 11, color: “#2a6a4a”, fontFamily: “monospace” }}>{s}s</span>
-<button onClick={function() { onDismiss(alert.id); }} style={{ background: “transparent”, border: “none”, color: “#2a5a3a”, cursor: “pointer”, fontSize: 15 }}>X</button>
+<div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+<span style={{ fontSize: 11, color: "#2a6a4a", fontFamily: "monospace" }}>{s}s</span>
+<button onClick={function() { onDismiss(alert.id); }} style={{ background: "transparent", border: "none", color: "#2a5a3a", cursor: "pointer", fontSize: 15 }}>X</button>
 </div>
 </div>
-<div style={{ fontSize: 15, fontWeight: 700, color: “#e8f4ff”, marginBottom: 10 }}>
+<div style={{ fontSize: 15, fontWeight: 700, color: "#e8f4ff", marginBottom: 10 }}>
 {alert.event.home} vs {alert.event.away}
 </div>
-<div style={{ display: “flex”, gap: 6, flexWrap: “wrap”, marginBottom: 10 }}>
+<div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
 {Object.entries(bestOdds).map(function(entry) {
 var outcome = entry[0]; var data = entry[1];
 return (
-<div key={outcome} style={{ background: “rgba(0,229,160,.08)”, border: “1px solid #00e5a020”, borderRadius: 7, padding: “6px 10px”, flex: 1, minWidth: 75 }}>
-<div style={{ fontSize: 9, color: “#00a070”, textTransform: “uppercase” }}>{labels[outcome] || outcome}</div>
-<div style={{ fontSize: 13, fontWeight: 700, color: “#00e5a0”, fontFamily: “monospace” }}>${(stakes[outcome] || 0).toLocaleString(“es-CO”)}</div>
-<div style={{ fontSize: 9, color: “#005535” }}>{data.odd.toFixed(2)} - {data.book}</div>
+<div key={outcome} style={{ background: "rgba(0,229,160,.08)", border: "1px solid #00e5a020", borderRadius: 7, padding: "6px 10px", flex: 1, minWidth: 75 }}>
+<div style={{ fontSize: 9, color: "#00a070", textTransform: "uppercase" }}>{labels[outcome] || outcome}</div>
+<div style={{ fontSize: 13, fontWeight: 700, color: "#00e5a0", fontFamily: "monospace" }}>${(stakes[outcome] || 0).toLocaleString("es-CO")}</div>
+<div style={{ fontSize: 9, color: "#005535" }}>{data.odd.toFixed(2)} - {data.book}</div>
 </div>
 );
 })}
-<div style={{ background: “rgba(0,229,160,.12)”, border: “1px solid #00e5a030”, borderRadius: 7, padding: “6px 10px”, flex: 1, minWidth: 75 }}>
-<div style={{ fontSize: 9, color: “#00a070”, textTransform: “uppercase” }}>Ganancia</div>
-<div style={{ fontSize: 13, fontWeight: 700, color: “#00e5a0”, fontFamily: “monospace” }}>${profit.toLocaleString(“es-CO”)}</div>
-<div style={{ fontSize: 9, color: “#005535” }}>{Math.abs(alert.margin).toFixed(2)}%</div>
+<div style={{ background: "rgba(0,229,160,.12)", border: "1px solid #00e5a030", borderRadius: 7, padding: "6px 10px", flex: 1, minWidth: 75 }}>
+<div style={{ fontSize: 9, color: "#00a070", textTransform: "uppercase" }}>Ganancia</div>
+<div style={{ fontSize: 13, fontWeight: 700, color: "#00e5a0", fontFamily: "monospace" }}>${profit.toLocaleString("es-CO")}</div>
+<div style={{ fontSize: 9, color: "#005535" }}>{Math.abs(alert.margin).toFixed(2)}%</div>
 </div>
 </div>
 <button
 onClick={function() { onOpenTabs(alert.event, bestOdds); }}
-style={{ width: “100%”, background: “#00e5a0”, color: “#001a0f”, border: “none”, borderRadius: 8, padding: “10px”, fontWeight: 800, fontSize: 13, cursor: “pointer” }}>
+style={{ width: "100%", background: "#00e5a0", color: "#001a0f", border: "none", borderRadius: 8, padding: "10px", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>
 Abrir casas ahora
 </button>
-<div style={{ position: “absolute”, bottom: 0, left: 0, right: 0, height: 3, background: “#001a10” }}>
-<div style={{ height: “100%”, background: “#00e5a0”, width: progress + “%”, transition: “width .1s linear” }} />
+<div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: "#001a10" }}>
+<div style={{ height: "100%", background: "#00e5a0", width: progress + "%", transition: "width .1s linear" }} />
 </div>
 </div>
 );
@@ -272,21 +272,21 @@ Abrir casas ahora
 function OddsTable(props) {
 var event = props.event;
 var isTwoWay = !Object.values(event.odds)[0].draw;
-var outcomes = isTwoWay ? [“home”, “away”] : [“home”, “draw”, “away”];
-var labels = { home: event.home, draw: “Empate”, away: event.away };
+var outcomes = isTwoWay ? ["home", "away"] : ["home", "draw", "away"];
+var labels = { home: event.home, draw: "Empate", away: event.away };
 var maxOdds = {};
 outcomes.forEach(function(o) {
 maxOdds[o] = Math.max.apply(null, Object.values(event.odds).map(function(b) { return b[o] || 0; }));
 });
 
 return (
-<div style={{ overflowX: “auto”, marginTop: 12 }}>
-<table style={{ width: “100%”, borderCollapse: “collapse”, fontSize: 12 }}>
+<div style={{ overflowX: "auto", marginTop: 12 }}>
+<table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
 <thead>
 <tr>
-<th style={{ padding: “6px 10px”, textAlign: “left”, color: “#2a4a6a”, fontSize: 10, fontWeight: 700, borderBottom: “1px solid #0a1828” }}>Casa</th>
+<th style={{ padding: "6px 10px", textAlign: "left", color: "#2a4a6a", fontSize: 10, fontWeight: 700, borderBottom: "1px solid #0a1828" }}>Casa</th>
 {outcomes.map(function(o) {
-return <th key={o} style={{ padding: “6px 10px”, textAlign: “left”, color: “#2a4a6a”, fontSize: 10, fontWeight: 700, borderBottom: “1px solid #0a1828” }}>{labels[o]}</th>;
+return <th key={o} style={{ padding: "6px 10px", textAlign: "left", color: "#2a4a6a", fontSize: 10, fontWeight: 700, borderBottom: "1px solid #0a1828" }}>{labels[o]}</th>;
 })}
 </tr>
 </thead>
@@ -295,10 +295,10 @@ return <th key={o} style={{ padding: “6px 10px”, textAlign: “left”, colo
 var book = entry[0]; var odds = entry[1];
 var bm = BOOKMAKERS_CO[book] || {};
 return (
-<tr key={book} style={{ borderBottom: “1px solid #080f18” }}>
-<td style={{ padding: “6px 10px” }}>
-<a href={bm.url || “#”} target=”_blank” rel=“noreferrer”
-style={{ color: bm.color || “#7eb8f7”, textDecoration: “none”, fontWeight: 700, fontSize: 12 }}
+<tr key={book} style={{ borderBottom: "1px solid #080f18" }}>
+<td style={{ padding: "6px 10px" }}>
+<a href={bm.url || "#"} target="_blank" rel="noreferrer"
+style={{ color: bm.color || "#7eb8f7", textDecoration: "none", fontWeight: 700, fontSize: 12 }}
 onClick={function(e) { e.stopPropagation(); }}>
 {book}
 </a>
@@ -307,8 +307,8 @@ onClick={function(e) { e.stopPropagation(); }}>
 var val = odds[o];
 var isMax = val === maxOdds[o];
 return (
-<td key={o} style={{ padding: “6px 10px”, color: isMax ? “#00e5a0” : “#6a8aaa”, fontWeight: isMax ? 700 : 400, background: isMax ? “rgba(0,229,160,.05)” : “transparent” }}>
-{val ? val.toFixed(2) : “-”}
+<td key={o} style={{ padding: "6px 10px", color: isMax ? "#00e5a0" : "#6a8aaa", fontWeight: isMax ? 700 : 400, background: isMax ? "rgba(0,229,160,.05)" : "transparent" }}>
+{val ? val.toFixed(2) : "-"}
 </td>
 );
 })}
@@ -333,7 +333,7 @@ var arb = calcArbitrage(bestOdds);
 var margin = arb.margin;
 var isSure = arb.isSure;
 var stakes = calcStakes(bestOdds, stake);
-var labels = { home: event.home, draw: “Empate”, away: event.away };
+var labels = { home: event.home, draw: "Empate", away: event.away };
 var profit = isSure ? Math.round(stake * Math.abs(margin) / 100) : null;
 var uniqueBooks = [];
 Object.values(bestOdds).forEach(function(o) {
@@ -342,32 +342,32 @@ if (uniqueBooks.indexOf(o.book) === -1) uniqueBooks.push(o.book);
 
 return (
 <div onClick={onToggle} style={{
-background: isSure ? “linear-gradient(135deg,#071812,#0a1624)” : “#090f1c”,
-border: isSure ? “1px solid #00e5a025” : “1px solid #0c1a28”,
-borderLeft: isSure ? “3px solid #00e5a0” : “3px solid #1a3050”,
+background: isSure ? "linear-gradient(135deg,#071812,#0a1624)" : "#090f1c",
+border: isSure ? "1px solid #00e5a025" : "1px solid #0c1a28",
+borderLeft: isSure ? "3px solid #00e5a0" : "3px solid #1a3050",
 borderRadius: 12,
-padding: “14px 16px”,
+padding: "14px 16px",
 marginBottom: 8,
-cursor: “pointer”,
-position: “relative”
+cursor: "pointer",
+position: "relative"
 }}>
 {isSure && (
-<div style={{ position: “absolute”, top: 0, right: 0, background: “#00e5a0”, color: “#001a0f”, fontSize: 9, fontWeight: 900, padding: “3px 10px”, borderBottomLeftRadius: 8 }}>
+<div style={{ position: "absolute", top: 0, right: 0, background: "#00e5a0", color: "#001a0f", fontSize: 9, fontWeight: 900, padding: "3px 10px", borderBottomLeftRadius: 8 }}>
 SUREBET
 </div>
 )}
-<div style={{ display: “flex”, justifyContent: “space-between”, flexWrap: “wrap”, gap: 8 }}>
+<div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
 <div>
-<div style={{ fontSize: 10, color: “#2a5a7a”, marginBottom: 3 }}>{event.sport} - {event.league} - {event.time}</div>
-<div style={{ fontSize: 16, fontWeight: 700, color: “#ddeeff” }}>
+<div style={{ fontSize: 10, color: "#2a5a7a", marginBottom: 3 }}>{event.sport} - {event.league} - {event.time}</div>
+<div style={{ fontSize: 16, fontWeight: 700, color: "#ddeeff" }}>
 {event.home} vs {event.away}
 </div>
 </div>
-<div style={{ textAlign: “right” }}>
-<div style={{ fontSize: 20, fontWeight: 800, fontFamily: “monospace”, color: isSure ? “#00e5a0” : margin < -15 ? “#ff6b6b” : “#ffd166” }}>
-{margin > 0 ? “+” : “”}{margin.toFixed(2)}%
+<div style={{ textAlign: "right" }}>
+<div style={{ fontSize: 20, fontWeight: 800, fontFamily: "monospace", color: isSure ? "#00e5a0" : margin < -15 ? "#ff6b6b" : "#ffd166" }}>
+{margin > 0 ? "+" : ""}{margin.toFixed(2)}%
 </div>
-<div style={{ fontSize: 9, color: “#2a4a6a” }}>{isSure ? “ganancia garantizada” : “margen casa”}</div>
+<div style={{ fontSize: 9, color: "#2a4a6a" }}>{isSure ? "ganancia garantizada" : "margen casa"}</div>
 </div>
 </div>
 
@@ -457,24 +457,24 @@ function BookmakerCard(props) {
 var name = props.name;
 var bm = BOOKMAKERS_CO[name];
 return (
-<div style={{ background: “#090f1c”, border: “1px solid #0c1a28”, borderLeft: “3px solid “ + bm.color, borderRadius: 10, padding: “12px 14px” }}>
-<div style={{ display: “flex”, justifyContent: “space-between”, alignItems: “flex-start”, marginBottom: 8 }}>
+<div style={{ background: "#090f1c", border: "1px solid #0c1a28", borderLeft: "3px solid " + bm.color, borderRadius: 10, padding: "12px 14px" }}>
+<div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
 <div style={{ fontSize: 15, fontWeight: 700, color: bm.color }}>{name}</div>
-<div style={{ display: “flex”, gap: 4 }}>
-{bm.app && <span style={{ background: “#0a2a1a”, color: “#00c887”, fontSize: 9, padding: “2px 6px”, borderRadius: 4 }}>APP</span>}
-<span style={{ background: “#0a1a2a”, color: “#4a8aba”, fontSize: 9, padding: “2px 6px”, borderRadius: 4 }}>Coljuegos</span>
+<div style={{ display: "flex", gap: 4 }}>
+{bm.app && <span style={{ background: "#0a2a1a", color: "#00c887", fontSize: 9, padding: "2px 6px", borderRadius: 4 }}>APP</span>}
+<span style={{ background: "#0a1a2a", color: "#4a8aba", fontSize: 9, padding: "2px 6px", borderRadius: 4 }}>Coljuegos</span>
 </div>
 </div>
-<div style={{ fontSize: 11, color: “#6a8aaa”, marginBottom: 8 }}>{bm.nota}</div>
-<div style={{ display: “flex”, gap: 4, flexWrap: “wrap”, marginBottom: 8 }}>
+<div style={{ fontSize: 11, color: "#6a8aaa", marginBottom: 8 }}>{bm.nota}</div>
+<div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 8 }}>
 {bm.metodos.map(function(m) {
-return <span key={m} style={{ background: “#0a1828”, border: “1px solid #1a2a3a”, borderRadius: 5, padding: “3px 8px”, fontSize: 10, color: “#8abaaa” }}>{m}</span>;
+return <span key={m} style={{ background: "#0a1828", border: "1px solid #1a2a3a", borderRadius: 5, padding: "3px 8px", fontSize: 10, color: "#8abaaa" }}>{m}</span>;
 })}
 </div>
-<div style={{ display: “flex”, justifyContent: “space-between”, alignItems: “center” }}>
-<div style={{ fontSize: 10, color: “#2a5a7a” }}>Retiro: {bm.retiro} - Min: {bm.minRetiro}</div>
-<a href={bm.url} target=”_blank” rel=“noreferrer”
-style={{ background: bm.color, color: “#fff”, borderRadius: 6, padding: “5px 12px”, fontSize: 11, fontWeight: 700, textDecoration: “none” }}>
+<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+<div style={{ fontSize: 10, color: "#2a5a7a" }}>Retiro: {bm.retiro} - Min: {bm.minRetiro}</div>
+<a href={bm.url} target="_blank" rel="noreferrer"
+style={{ background: bm.color, color: "#fff", borderRadius: 6, padding: "5px 12px", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
 Abrir
 </a>
 </div>
@@ -488,11 +488,11 @@ var [stake, setStake] = useState(50000);
 var [expandedId, setExpandedId] = useState(null);
 var [alerts, setAlerts] = useState([]);
 var [history, setHistory] = useState([]);
-var [tab, setTab] = useState(“live”);
+var [tab, setTab] = useState("live");
 var [lastScan, setLastScan] = useState(new Date());
 var [scanning, setScanning] = useState(false);
 var [soundOn, setSoundOn] = useState(true);
-var [filterSport, setFilterSport] = useState(“Todos”);
+var [filterSport, setFilterSport] = useState("Todos");
 var prevSurebets = useRef(new Set());
 
 var openBookmakerTabs = useCallback(function(event, bestOdds) {
@@ -502,8 +502,8 @@ if (books.indexOf(o.book) === -1) books.push(o.book);
 });
 books.forEach(function(book, i) {
 setTimeout(function() {
-var url = (BOOKMAKERS_CO[book] && BOOKMAKERS_CO[book].url) || “#”;
-window.open(url, “*sb*” + book);
+var url = (BOOKMAKERS_CO[book] && BOOKMAKERS_CO[book].url) || "#";
+window.open(url, "*sb*" + book);
 }, i * 400);
 });
 }, []);
@@ -516,7 +516,7 @@ setHistory(function(prev) {
 return [{
 id: Date.now(),
 time: new Date().toLocaleTimeString(),
-match: event.home + “ vs “ + event.away,
+match: event.home + " vs " + event.away,
 league: event.league,
 margin: margin,
 profit: Math.round(stake * Math.abs(margin) / 100)
@@ -557,10 +557,10 @@ setLastScan(new Date());
 return function() { clearInterval(iv); };
 }, [triggerAlert]);
 
-var sports = [“Todos”].concat([…new Set(BASE_EVENTS.map(function(e) { return e.sport; }))]);
+var sports = ["Todos"].concat([…new Set(BASE_EVENTS.map(function(e) { return e.sport; }))]);
 
 var filtered = events
-.filter(function(e) { return filterSport === “Todos” || e.sport === filterSport; })
+.filter(function(e) { return filterSport === "Todos" || e.sport === filterSport; })
 .sort(function(a, b) {
 return calcArbitrage(getBestOdds(b)).margin - calcArbitrage(getBestOdds(a)).margin;
 });
@@ -569,9 +569,9 @@ var surebetCount = events.filter(function(e) { return calcArbitrage(getBestOdds(
 var totalProfit = history.reduce(function(a, h) { return a + h.profit; }, 0);
 
 return (
-<div style={{ minHeight: “100vh”, background: “#060c16”, fontFamily: “sans-serif”, color: “#c8d8e8” }}>
+<div style={{ minHeight: "100vh", background: "#060c16", fontFamily: "sans-serif", color: "#c8d8e8" }}>
 {alerts.length > 0 && (
-<div style={{ position: “fixed”, top: 12, right: 12, zIndex: 300, width: 330, maxWidth: “calc(100vw - 24px)” }}>
+<div style={{ position: "fixed", top: 12, right: 12, zIndex: 300, width: 330, maxWidth: "calc(100vw - 24px)" }}>
 {alerts.map(function(a) {
 return (
 <AlertToast key={a.id} alert={a} stake={stake}
