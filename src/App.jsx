@@ -377,7 +377,7 @@ if (!API_KEY) { setError("Falta VITE_ODDS_API_KEY en Vercel Settings"); setLoadi
 if (active.length === 0) { setEvents([]); setLoading(false); return; }
 setScanning(true);
 
-```
+
 // Construir promesas para cada deporte
 var promises = active.map(function(sportInfo) {
   var url = API_BASE + "/sports/" + sportInfo.key + "/odds?apiKey=" + API_KEY + "&regions=eu&markets=h2h&oddsFormat=decimal";
@@ -417,7 +417,7 @@ Promise.all(promises).then(function(results) {
   setLastScan(new Date());
   setError(null);
 });
-```
+
 
 }, [sports, triggerAlert]);
 
@@ -447,7 +447,7 @@ return <AlertToast key={a.id} alert={a} stake={stake} onDismiss={function(id) { 
 </div>
 )}
 
-```
+
   <div style={{ background: "#060c16", borderBottom: "1px solid #0a1628", padding: "14px 16px", position: "sticky", top: 0, zIndex: 100 }}>
     <div style={{ maxWidth: 860, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
       <div>
