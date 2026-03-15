@@ -379,7 +379,9 @@ setScanning(true);
 var allEvents = [];
 var pending = active.length;
 active.forEach(function(sportInfo) {
-var url = API_BASE + "/sports/" + sportInfo.key + "/odds?apiKey=" + API_KEY + "&regions=eu,us&markets=h2h&oddsFormat=decimal";
+
+var url = API_BASE + "/sports/" + sportInfo.key + "/odds?apiKey=" + API_KEY + "&regions=eu%2Cus&markets=h2h&oddsFormat=decimal";
+
 fetch(url)
 .then(function(res) {
 var remaining = res.headers.get("x-requests-remaining");
