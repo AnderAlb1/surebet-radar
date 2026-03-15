@@ -579,7 +579,6 @@ onOpenTabs={openBookmakerTabs} />
 </div>
 )}
 
-'''
   <div style={{ background: "#060c16", borderBottom: "1px solid #0a1628", padding: "14px 16px", position: "sticky", top: 0, zIndex: 100 }}>
     <div style={{ maxWidth: 860, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
       <div>
