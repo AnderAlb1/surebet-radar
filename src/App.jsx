@@ -554,7 +554,7 @@ setLastScan(new Date());
 return function() { clearInterval(iv); };
 }, [triggerAlert]);
 
-var sports = ["Todos"].concat([…new Set(BASE_EVENTS.map(function(e) { return e.sport; }))]);
+var sports = ["Todos"].concat([... new Set(BASE_EVENTS.map(function(e) { return e.sport; }))]);
 
 var filtered = events
 .filter(function(e) { return filterSport === "Todos" || e.sport === filterSport; })
