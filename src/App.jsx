@@ -1,47 +1,46 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const API_KEY = "02daecad21992e7923491701827d3d59";
+const API_KEY = import.meta.env.VITE_ODDS_API_KEY;
 const API_BASE = "https://api.the-odds-api.com/v4";
 
 const ALL_SPORTS = [
-{ key: "basketball_nba",                      label: "NBA",              sport: "Baloncesto", active: true  },
-{ key: "icehockey_nhl",                       label: "NHL Hockey",       sport: "Hockey",     active: false },
-{ key: "soccer_epl",                          label: "Premier League",   sport: "Futbol",     active: false },
-{ key: "soccer_spain_la_liga",                label: "La Liga",          sport: "Futbol",     active: false },
-{ key: "soccer_germany_bundesliga",           label: "Bundesliga",       sport: "Futbol",     active: false },
-{ key: "soccer_italy_serie_a",                label: "Serie A",          sport: "Futbol",     active: false },
-{ key: "soccer_uefa_champs_league",           label: "Champions League", sport: "Futbol",     active: false },
-{ key: "soccer_uefa_europa_league",           label: "Europa League",    sport: "Futbol",     active: false },
-{ key: "soccer_usa_mls",                      label: "MLS",              sport: "Futbol",     active: false },
-{ key: "soccer_brazil_campeonato",            label: "Brasil Serie A",   sport: "Futbol",     active: false },
-{ key: "soccer_argentina_primera_division",   label: "Argentina",        sport: "Futbol",     active: false },
-{ key: "soccer_mexico_ligamx",                label: "Liga MX",          sport: "Futbol",     active: false },
-{ key: "soccer_chile_campeonato",             label: "Chile",            sport: "Futbol",     active: false },
-{ key: "tennis_atp_indian_wells",             label: "ATP Indian Wells", sport: "Tenis",      active: false },
-{ key: "tennis_wta_indian_wells",             label: "WTA Indian Wells", sport: "Tenis",      active: false },
-{ key: "mma_mixed_martial_arts",              label: "MMA",              sport: "MMA",        active: false },
+{ key: "basketball_nba",                     label: "NBA",              sport: "Baloncesto", active: true  },
+{ key: "icehockey_nhl",                      label: "NHL Hockey",       sport: "Hockey",     active: false },
+{ key: "soccer_epl",                         label: "Premier League",   sport: "Futbol",     active: false },
+{ key: "soccer_spain_la_liga",               label: "La Liga",          sport: "Futbol",     active: false },
+{ key: "soccer_germany_bundesliga",          label: "Bundesliga",       sport: "Futbol",     active: false },
+{ key: "soccer_italy_serie_a",               label: "Serie A",          sport: "Futbol",     active: false },
+{ key: "soccer_uefa_champs_league",          label: "Champions League", sport: "Futbol",     active: false },
+{ key: "soccer_usa_mls",                     label: "MLS",              sport: "Futbol",     active: false },
+{ key: "soccer_brazil_campeonato",           label: "Brasil Serie A",   sport: "Futbol",     active: false },
+{ key: "soccer_argentina_primera_division",  label: "Argentina",        sport: "Futbol",     active: false },
+{ key: "soccer_mexico_ligamx",               label: "Liga MX",          sport: "Futbol",     active: false },
+{ key: "tennis_atp_indian_wells",            label: "ATP Indian Wells", sport: "Tenis",      active: false },
+{ key: "tennis_wta_indian_wells",            label: "WTA Indian Wells", sport: "Tenis",      active: false },
+{ key: "mma_mixed_martial_arts",             label: "MMA",              sport: "MMA",        active: false },
 ];
 
 const BOOKMAKERS_CO = {
-Rushbet:     { url: "https://www.rushbet.co",       color: "#e8000d", metodos: ["Nequi","Daviplata","Efecty","PSE"], retiro: "Nequi 2h",    minRetiro: "$20.000", app: true  },
-Wplay:       { url: "https://www.wplay.co",         color: "#00a651", metodos: ["Nequi","PSE","Efecty","Bancolombia"], retiro: "24-72h",    minRetiro: "$10.000", app: true  },
-Betsson:     { url: "https://www.betsson.com.co",   color: "#f5a623", metodos: ["Nequi","PSE","Daviplata"],          retiro: "Nequi 1-3d",  minRetiro: "$5.000",  app: true  },
-Sportium:    { url: "https://www.sportium.com.co",  color: "#0055a5", metodos: ["PSE","Efecty","Nequi"],            retiro: "24-48h",      minRetiro: "$1.000",  app: true  },
-Rivalo:      { url: "https://www.rivalo.co",        color: "#c0392b", metodos: ["PSE","Nequi","Efecty"],            retiro: "24-72h",      minRetiro: "$10.000", app: false },
-Luckia:      { url: "https://www.luckia.co",        color: "#8e44ad", metodos: ["PSE","Nequi","Efecty"],            retiro: "24-48h",      minRetiro: "$5.000",  app: true  },
-williamhill: { url: "https://www.williamhill.es",   color: "#004a9f", metodos: ["PSE","Transferencia"],             retiro: "2-5 dias",    minRetiro: "$10.000", app: true  },
-unibet:      { url: "https://www.unibet.es",        color: "#147b45", metodos: ["PSE","Transferencia"],             retiro: "1-3 dias",    minRetiro: "$5.000",  app: true  },
-betway:      { url: "https://www.betway.es",        color: "#00a950", metodos: ["PSE","Transferencia"],             retiro: "24-72h",      minRetiro: "$10.000", app: true  },
-sport888:    { url: "https://www.888sport.es",      color: "#ff6600", metodos: ["PSE","Transferencia"],             retiro: "1-3 dias",    minRetiro: "$10.000", app: false },
-betsson:     { url: "https://www.betsson.com.co",   color: "#f5a623", metodos: ["Nequi","PSE"],                    retiro: "1-3 dias",    minRetiro: "$5.000",  app: true  },
-draftkings:  { url: "https://www.draftkings.com",   color: "#53d337", metodos: ["Transferencia"],                  retiro: "1-3 dias",    minRetiro: "$10.000", app: true  },
-fanduel:     { url: "https://www.fanduel.com",      color: "#1493ff", metodos: ["Transferencia"],                  retiro: "1-3 dias",    minRetiro: "$10.000", app: true  },
-betmgm:      { url: "https://www.betmgm.com",       color: "#c9a84c", metodos: ["Transferencia"],                  retiro: "1-3 dias",    minRetiro: "$10.000", app: true  },
-bovada:      { url: "https://www.bovada.lv",        color: "#d4282a", metodos: ["Transferencia"],                  retiro: "1-3 dias",    minRetiro: "$10.000", app: false },
+Rushbet:     { url: "https://www.rushbet.co",      color: "#e8000d", metodos: ["Nequi","Daviplata","Efecty","PSE"], retiro: "Nequi 2h",   minRetiro: "$20.000", app: true  },
+Wplay:       { url: "https://www.wplay.co",        color: "#00a651", metodos: ["Nequi","PSE","Efecty","Bancolombia"], retiro: "24-72h",   minRetiro: "$10.000", app: true  },
+Betsson:     { url: "https://www.betsson.com.co",  color: "#f5a623", metodos: ["Nequi","PSE","Daviplata"],          retiro: "Nequi 1-3d", minRetiro: "$5.000",  app: true  },
+Sportium:    { url: "https://www.sportium.com.co", color: "#0055a5", metodos: ["PSE","Efecty","Nequi"],            retiro: "24-48h",     minRetiro: "$1.000",  app: true  },
+Rivalo:      { url: "https://www.rivalo.co",       color: "#c0392b", metodos: ["PSE","Nequi","Efecty"],            retiro: "24-72h",     minRetiro: "$10.000", app: false },
+Luckia:      { url: "https://www.luckia.co",       color: "#8e44ad", metodos: ["PSE","Nequi","Efecty"],            retiro: "24-48h",     minRetiro: "$5.000",  app: true  },
+williamhill: { url: "https://www.williamhill.es",  color: "#004a9f", metodos: ["PSE","Transferencia"],             retiro: "2-5 dias",   minRetiro: "$10.000", app: true  },
+unibet:      { url: "https://www.unibet.es",       color: "#147b45", metodos: ["PSE","Transferencia"],             retiro: "1-3 dias",   minRetiro: "$5.000",  app: true  },
+betway:      { url: "https://www.betway.es",       color: "#00a950", metodos: ["PSE","Transferencia"],             retiro: "24-72h",     minRetiro: "$10.000", app: true  },
+betsson:     { url: "https://www.betsson.com.co",  color: "#f5a623", metodos: ["Nequi","PSE"],                    retiro: "1-3 dias",   minRetiro: "$5.000",  app: true  },
+draftkings:  { url: "https://www.draftkings.com",  color: "#53d337", metodos: ["Transferencia"],                  retiro: "1-3 dias",   minRetiro: "$10.000", app: true  },
+fanduel:     { url: "https://www.fanduel.com",     color: "#1493ff", metodos: ["Transferencia"],                  retiro: "1-3 dias",   minRetiro: "$10.000", app: true  },
+betmgm:      { url: "https://www.betmgm.com",      color: "#c9a84c", metodos: ["Transferencia"],                  retiro: "1-3 dias",   minRetiro: "$10.000", app: true  },
+pinnacle:    { url: "https://www.pinnacle.com",    color: "#f0a500", metodos: ["Transferencia"],                  retiro: "1-3 dias",   minRetiro: "$10.000", app: false },
+bovada:      { url: "https://www.bovada.lv",       color: "#d4282a", metodos: ["Transferencia"],                  retiro: "1-3 dias",   minRetiro: "$10.000", app: false },
+onexbet:     { url: "https://www.1xbet.com",       color: "#1a73e8", metodos: ["Nequi","PSE","Transferencia"],    retiro: "24-72h",     minRetiro: "$5.000",  app: true  },
 };
 
 function getBM(key) {
-return BOOKMAKERS_CO[key] || { url: "#", color: "#070808", metodos: [], retiro: "Variable", minRetiro: "Variable", app: false };
+return BOOKMAKERS_CO[key] || { url: "#", color: "#4a7a9b", metodos: [], retiro: "Variable", minRetiro: "Variable", app: false };
 }
 
 function getBestOdds(event) {
@@ -371,28 +370,58 @@ return [{ id: Date.now(), time: new Date().toLocaleTimeString(), match: event.ho
 });
 }, [soundOn, stake]);
 
+// Fetch secuencial — un deporte a la vez, sin problemas de pending
 var fetchOdds = useCallback(function() {
-  setScanning(true);
-  fetch("https://api.the-odds-api.com/v4/sports/basketball_nba/odds?apiKey=02daecad21992e7923491701827d3d59&regions=eu&markets=h2h&oddsFormat=decimal")
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-      console.log("DATA:", data.length, "eventos");
-      var parsed = parseApiEvents(data, { key: "basketball_nba", label: "NBA", sport: "Baloncesto" });
-      setEvents(parsed);
-      setLoading(false);
-      setScanning(false);
-      setLastScan(new Date());
+var active = sports.filter(function(s) { return s.active; });
+if (!API_KEY) { setError("Falta VITE_ODDS_API_KEY en Vercel Settings"); setLoading(false); return; }
+if (active.length === 0) { setEvents([]); setLoading(false); return; }
+setScanning(true);
+
+```
+// Construir promesas para cada deporte
+var promises = active.map(function(sportInfo) {
+  var url = API_BASE + "/sports/" + sportInfo.key + "/odds?apiKey=" + API_KEY + "&regions=eu&markets=h2h&oddsFormat=decimal";
+  return fetch(url)
+    .then(function(res) {
+      var remaining = res.headers.get("x-requests-remaining");
+      if (remaining) setRequestsLeft(parseInt(remaining));
+      if (!res.ok) throw new Error("Error " + res.status);
+      return res.json();
     })
+    .then(function(data) { return parseApiEvents(data, sportInfo); })
     .catch(function(err) {
-      console.log("ERROR:", err.message);
-      setError(err.message);
-      setLoading(false);
-      setScanning(false);
+      console.warn("Error " + sportInfo.key + ":", err.message);
+      return [];
     });
-}, []);
+});
 
+Promise.all(promises).then(function(results) {
+  var allEvents = [];
+  results.forEach(function(r) { allEvents = allEvents.concat(r); });
 
-useEffect(function() { fetchOdds(ALL_SPORTS.filter(function(s) { return s.active; })); }, []);
+  // Detectar surebets
+  allEvents.forEach(function(e) {
+    var best = getBestOdds(e);
+    var result = calcArbitrage(best);
+    if (result.isSure && !prevSurebets.current.has(e.id)) {
+      prevSurebets.current.add(e.id);
+      triggerAlert(e, result.margin);
+    } else if (!result.isSure) {
+      prevSurebets.current.delete(e.id);
+    }
+  });
+
+  setEvents(allEvents);
+  setLoading(false);
+  setScanning(false);
+  setLastScan(new Date());
+  setError(null);
+});
+```
+
+}, [sports, triggerAlert]);
+
+useEffect(function() { fetchOdds(); }, []);
 
 useEffect(function() {
 var iv = setInterval(function() { fetchOdds(); }, 60000);
@@ -468,18 +497,11 @@ return <AlertToast key={a.id} alert={a} stake={stake} onDismiss={function(id) { 
             return <button key={s} onClick={function() { setFilterSport(s); }} style={{ background: filterSport === s ? "#0e2a4a" : "transparent", border: filterSport === s ? "1px solid #2a6aaa" : "1px solid #0a1828", borderRadius: 7, padding: "7px 11px", color: filterSport === s ? "#7eb8f7" : "#2a4a6a", fontSize: 11, cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>{s}</button>;
           })}
         </div>
-        {loading && (
-          <div style={{ textAlign: "center", padding: "60px 0", color: "#2a5a7a" }}>
-            <div style={{ marginBottom: 12, fontSize: 24 }}>...</div>
-            <div>Cargando cuotas reales...</div>
-          </div>
-        )}
+        {loading && <div style={{ textAlign: "center", padding: "60px 0", color: "#2a5a7a" }}>Cargando cuotas reales...</div>}
         {!loading && filtered.length === 0 && (
           <div style={{ textAlign: "center", padding: "50px 0", color: "#2a5a7a" }}>
-            <div style={{ fontSize: 28, marginBottom: 8 }}>-</div>
-            <div style={{ marginBottom: 6 }}>No hay eventos disponibles ahora</div>
-            <div style={{ fontSize: 11, color: "#1a3a5a" }}>Activa mas deportes en la pestana Deportes</div>
-            <button onClick={function() { setTab("deportes"); }} style={{ marginTop: 14, background: "#0e2a4a", border: "1px solid #2a6aaa", borderRadius: 7, padding: "8px 16px", color: "#7eb8f7", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>Ir a Deportes</button>
+            <div style={{ marginBottom: 8 }}>No hay eventos disponibles ahora</div>
+            <button onClick={function() { setTab("deportes"); }} style={{ marginTop: 10, background: "#0e2a4a", border: "1px solid #2a6aaa", borderRadius: 7, padding: "8px 16px", color: "#7eb8f7", fontSize: 12, cursor: "pointer", fontFamily: "inherit" }}>Ir a Deportes</button>
           </div>
         )}
         {!loading && filtered.map(function(e) {
@@ -497,13 +519,10 @@ return <AlertToast key={a.id} alert={a} stake={stake} onDismiss={function(id) { 
           </div>
           {sports.map(function(s) { return <SportToggle key={s.key} sport={s} active={s.active} onChange={toggleSport} />; })}
         </div>
-        <div style={{ background: "rgba(255,209,102,.05)", border: "1px solid #ffd16620", borderRadius: 10, padding: "12px 14px", fontSize: 11, color: "#8a7a40", lineHeight: 1.7 }}>
-          {peticionesPorScan === 0
-            ? "Activa al menos un deporte para empezar a detectar surebets."
-            : "Con " + peticionesPorScan + " deporte" + (peticionesPorScan !== 1 ? "s" : "") + " activo" + (peticionesPorScan !== 1 ? "s" : "") + " tienes aprox. " + horasDisponibles + " horas de uso con el plan gratuito (500 peticiones/mes)."
-          }
+        <div style={{ background: "rgba(255,209,102,.05)", border: "1px solid #ffd16620", borderRadius: 10, padding: "12px 14px", fontSize: 11, color: "#8a7a40", lineHeight: 1.7, marginBottom: 12 }}>
+          {peticionesPorScan === 0 ? "Activa al menos un deporte." : "Con " + peticionesPorScan + " deporte" + (peticionesPorScan !== 1 ? "s" : "") + " tienes aprox. " + horasDisponibles + " horas con el plan gratuito."}
         </div>
-        <button onClick={function() { fetchOdds(); setTab("live"); }} style={{ marginTop: 12, width: "100%", background: "#00e5a0", color: "#001a0f", border: "none", borderRadius: 8, padding: "12px", fontWeight: 800, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
+        <button onClick={function() { fetchOdds(); setTab("live"); }} style={{ width: "100%", background: "#00e5a0", color: "#001a0f", border: "none", borderRadius: 8, padding: "12px", fontWeight: 800, fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
           Aplicar y ver eventos
         </button>
       </div>
@@ -548,6 +567,5 @@ return <AlertToast key={a.id} alert={a} stake={stake} onDismiss={function(id) { 
     </div>
   </div>
 </div>
-
 );
 }
