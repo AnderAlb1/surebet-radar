@@ -371,7 +371,7 @@ SUREBET
 </div>
 </div>
 
-```
+'''
   <div style={{ display: "flex", gap: 6, marginTop: 12, flexWrap: "wrap" }}>
     {Object.entries(bestOdds).map(function(entry) {
       var outcome = entry[0]; var data = entry[1];
@@ -448,8 +448,7 @@ SUREBET
     {expanded ? "ocultar" : "ver detalle"}
   </div>
 </div>
-```
-
+'''
 );
 }
 
@@ -582,7 +581,7 @@ onOpenTabs={openBookmakerTabs} />
 </div>
 )}
 
-```
+'''
   <div style={{ background: "#060c16", borderBottom: "1px solid #0a1628", padding: "14px 16px", position: "sticky", top: 0, zIndex: 100 }}>
     <div style={{ maxWidth: 860, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
       <div>
@@ -714,7 +713,8 @@ onOpenTabs={openBookmakerTabs} />
     </div>
   </div>
 </div>
-```
+'''
 
 );
 }
+
