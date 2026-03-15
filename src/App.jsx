@@ -1,154 +1,46 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const BOOKMAKERS_CO = {
-Rushbet: {
-url: "https://www.rushbet.co",
-color: "#e8000d",
-metodos: ["Nequi", "Daviplata", "Efecty", "PSE"],
-retiro: "Nequi directo 2h",
-minRetiro: "$20.000",
-app: true,
-nota: "Mejor retiro con Nequi, aprobacion en 2 horas"
-},
-Wplay: {
-url: "https://www.wplay.co",
-color: "#00a651",
-metodos: ["Nequi", "PSE", "Efecty", "Bancolombia"],
-retiro: "Transferencia 24-72h",
-minRetiro: "$10.000",
-app: true,
-nota: "Mejor bono bienvenida: $200.000 COP"
-},
-Betsson: {
-url: "https://www.betsson.com.co",
-color: "#f5a623",
-metodos: ["Nequi", "PSE", "Daviplata", "Efecty"],
-retiro: "Nequi 1-3 dias habiles",
-minRetiro: "$5.000",
-app: true,
-nota: "30 deportes, streaming en vivo incluido"
-},
-Sportium: {
-url: "https://www.sportium.com.co",
-color: "#0055a5",
-metodos: ["PSE", "Efecty", "Nequi", "Puntos fisicos"],
-retiro: "Transferencia 24-48h",
-minRetiro: "$1.000",
-app: true,
-nota: "Excelente para apuestas en vivo"
-},
-Rivalo: {
-url: "https://www.rivalo.co",
-color: "#c0392b",
-metodos: ["PSE", "Nequi", "AstroPay", "Efecty"],
-retiro: "Transferencia 24-72h",
-minRetiro: "$10.000",
-app: false,
-nota: "Buenas cuotas en futbol colombiano"
-},
-Luckia: {
-url: "https://www.luckia.co",
-color: "#8e44ad",
-metodos: ["PSE", "Nequi", "Efecty", "DaviPlata"],
-retiro: "Transferencia 24-48h",
-minRetiro: "$5.000",
-app: true,
-nota: "Especialista en mercado colombiano"
-}
-};
+const API_KEY = import.meta.env.VITE_ODDS_API_KEY;
+const API_BASE = "https://api.the-odds-api.com/v4";
 
-const BASE_EVENTS = [
-{
-id: 1, sport: "Futbol", league: "Liga BetPlay Dimayor",
-home: "Atletico Nacional", away: "Ind. Medellin", time: "Hoy 20:00",
-odds: {
-Rushbet:  { home: 2.10, draw: 3.20, away: 3.40 },
-Wplay:    { home: 2.00, draw: 3.35, away: 3.60 },
-Betsson:  { home: 2.15, draw: 3.10, away: 3.30 },
-Sportium: { home: 1.95, draw: 3.40, away: 3.70 },
-Rivalo:   { home: 2.20, draw: 3.25, away: 3.25 },
-Luckia:   { home: 2.05, draw: 3.50, away: 3.45 }
-}
-},
-{
-id: 2, sport: "Futbol", league: "Liga BetPlay Dimayor",
-home: "Millonarios", away: "Santa Fe", time: "Manana 18:00",
-odds: {
-Rushbet:  { home: 2.30, draw: 3.10, away: 2.90 },
-Wplay:    { home: 2.20, draw: 3.20, away: 3.10 },
-Betsson:  { home: 2.40, draw: 3.00, away: 2.80 },
-Sportium: { home: 2.15, draw: 3.30, away: 3.20 },
-Luckia:   { home: 2.35, draw: 3.05, away: 2.95 }
-}
-},
-{
-id: 3, sport: "Futbol", league: "Copa Libertadores",
-home: "America de Cali", away: "Flamengo", time: "Hoy 21:30",
-odds: {
-Rushbet:  { home: 4.00, draw: 3.50, away: 1.80 },
-Wplay:    { home: 4.20, draw: 3.40, away: 1.75 },
-Betsson:  { home: 3.90, draw: 3.60, away: 1.85 },
-Sportium: { home: 4.10, draw: 3.45, away: 1.78 },
-Rivalo:   { home: 3.80, draw: 3.70, away: 1.90 }
-}
-},
-{
-id: 4, sport: "Tenis", league: "ATP Masters",
-home: "Galan", away: "Djokovic", time: "Manana 14:00",
-odds: {
-Rushbet:  { home: 3.50, away: 1.30 },
-Wplay:    { home: 3.70, away: 1.25 },
-Betsson:  { home: 3.40, away: 1.35 },
-Sportium: { home: 3.60, away: 1.28 },
-Luckia:   { home: 3.30, away: 1.40 }
-}
-},
-{
-id: 5, sport: "Futbol", league: "Copa Sudamericana",
-home: "Junior", away: "Boca Juniors", time: "Manana 19:15",
-odds: {
-Rushbet:  { home: 3.10, draw: 3.20, away: 2.10 },
-Wplay:    { home: 3.30, draw: 3.10, away: 2.00 },
-Betsson:  { home: 3.00, draw: 3.30, away: 2.20 },
-Rivalo:   { home: 3.20, draw: 3.15, away: 2.05 },
-Luckia:   { home: 3.40, draw: 3.00, away: 1.95 }
-}
-},
-{
-id: 6, sport: "Baloncesto", league: "NBA",
-home: "Miami Heat", away: "Toronto Raptors", time: "Hoy 01:00",
-odds: {
-Rushbet:  { home: 1.85, away: 2.00 },
-Wplay:    { home: 1.95, away: 1.90 },
-Betsson:  { home: 1.80, away: 2.05 },
-Sportium: { home: 2.00, away: 1.85 }
-}
-},
-{
-id: 7, sport: "Futbol", league: "Liga BetPlay Dimayor",
-home: "Deportivo Cali", away: "Bucaramanga", time: "Dom 16:00",
-odds: {
-Rushbet:  { home: 1.90, draw: 3.30, away: 3.80 },
-Wplay:    { home: 2.00, draw: 3.20, away: 3.60 },
-Betsson:  { home: 1.85, draw: 3.40, away: 3.90 },
-Sportium: { home: 1.95, draw: 3.25, away: 3.70 },
-Luckia:   { home: 2.05, draw: 3.15, away: 3.55 }
-}
-}
+const ALL_SPORTS = [
+{ key: "soccer_colombia_primera_a",          label: "Liga BetPlay",      sport: "Futbol",     cost: 1, active: true },
+{ key: "soccer_conmebol_copa_libertadores",  label: "Libertadores",      sport: "Futbol",     cost: 1, active: false },
+{ key: "soccer_conmebol_copa_sudamericana",  label: "Sudamericana",      sport: "Futbol",     cost: 1, active: false },
+{ key: "soccer_epl",                         label: "Premier League",    sport: "Futbol",     cost: 1, active: false },
+{ key: "soccer_spain_la_liga",               label: "La Liga",           sport: "Futbol",     cost: 1, active: false },
+{ key: "soccer_uefa_champs_league",          label: "Champions",         sport: "Futbol",     cost: 1, active: false },
+{ key: "basketball_nba",                     label: "NBA",               sport: "Baloncesto", cost: 1, active: false },
+{ key: "tennis_atp",                         label: "ATP Tenis",         sport: "Tenis",      cost: 1, active: false },
 ];
 
+const BOOKMAKERS_CO = {
+Rushbet:     { url: "https://www.rushbet.co",       color: "#e8000d", metodos: ["Nequi","Daviplata","Efecty","PSE"], retiro: "Nequi 2h",      minRetiro: "$20.000", app: true  },
+Wplay:       { url: "https://www.wplay.co",         color: "#00a651", metodos: ["Nequi","PSE","Efecty","Bancolombia"], retiro: "24-72h",      minRetiro: "$10.000", app: true  },
+Betsson:     { url: "https://www.betsson.com.co",   color: "#f5a623", metodos: ["Nequi","PSE","Daviplata"],          retiro: "Nequi 1-3d",    minRetiro: "$5.000",  app: true  },
+Sportium:    { url: "https://www.sportium.com.co",  color: "#0055a5", metodos: ["PSE","Efecty","Nequi"],            retiro: "24-48h",        minRetiro: "$1.000",  app: true  },
+Rivalo:      { url: "https://www.rivalo.co",        color: "#c0392b", metodos: ["PSE","Nequi","Efecty"],            retiro: "24-72h",        minRetiro: "$10.000", app: false },
+Luckia:      { url: "https://www.luckia.co",        color: "#8e44ad", metodos: ["PSE","Nequi","Efecty"],            retiro: "24-48h",        minRetiro: "$5.000",  app: true  },
+williamhill: { url: "https://www.williamhill.es",   color: "#004a9f", metodos: ["PSE","Transferencia"],             retiro: "2-5 dias",      minRetiro: "$10.000", app: true  },
+unibet:      { url: "https://www.unibet.es",        color: "#147b45", metodos: ["PSE","Transferencia"],             retiro: "1-3 dias",      minRetiro: "$5.000",  app: true  },
+betway:      { url: "https://www.betway.es",        color: "#00a950", metodos: ["PSE","Transferencia"],             retiro: "24-72h",        minRetiro: "$10.000", app: true  },
+sport888:    { url: "https://www.888sport.es",      color: "#ff6600", metodos: ["PSE","Transferencia"],             retiro: "1-3 dias",      minRetiro: "$10.000", app: false },
+betsson:     { url: "https://www.betsson.com.co",   color: "#f5a623", metodos: ["Nequi","PSE"],                    retiro: "1-3 dias",      minRetiro: "$5.000",  app: true  },
+};
+
+function getBM(key) {
+return BOOKMAKERS_CO[key] || { url: "#", color: "#4a7a9b", metodos: [], retiro: "Variable", minRetiro: "Variable", app: false };
+}
+
 function getBestOdds(event) {
-const isTwoWay = !Object.values(event.odds)[0].draw;
-const outcomes = isTwoWay ? ["home", "away"] : ["home", "draw", "away"];
-const result = {};
+var isTwoWay = !Object.values(event.odds)[0].draw;
+var outcomes = isTwoWay ? ["home","away"] : ["home","draw","away"];
+var result = {};
 outcomes.forEach(function(o) {
 result[o] = { odd: 0, book: "" };
 Object.entries(event.odds).forEach(function(entry) {
-var book = entry[0];
-var odds = entry[1];
-if ((odds[o] || 0) > result[o].odd) {
-result[o] = { odd: odds[o], book: book };
-}
+var book = entry[0]; var odds = entry[1];
+if ((odds[o] || 0) > result[o].odd) result[o] = { odd: odds[o], book: book };
 });
 });
 return result;
@@ -174,62 +66,72 @@ return stakes;
 function playAlert() {
 try {
 var ctx = new (window.AudioContext || window.webkitAudioContext)();
-[[880, 0], [1100, 0.15], [1320, 0.3]].forEach(function(pair) {
+[[880,0],[1100,0.15],[1320,0.3]].forEach(function(pair) {
 var f = pair[0]; var t = pair[1];
-var o = ctx.createOscillator();
-var g = ctx.createGain();
+var o = ctx.createOscillator(); var g = ctx.createGain();
 o.connect(g); g.connect(ctx.destination);
 o.frequency.value = f; o.type = "sine";
-g.gain.setValueAtTime(0, ctx.currentTime + t);
-g.gain.linearRampToValueAtTime(0.4, ctx.currentTime + t + 0.01);
-g.gain.linearRampToValueAtTime(0, ctx.currentTime + t + 0.2);
-o.start(ctx.currentTime + t);
-o.stop(ctx.currentTime + t + 0.25);
+g.gain.setValueAtTime(0, ctx.currentTime+t);
+g.gain.linearRampToValueAtTime(0.4, ctx.currentTime+t+0.01);
+g.gain.linearRampToValueAtTime(0, ctx.currentTime+t+0.2);
+o.start(ctx.currentTime+t); o.stop(ctx.currentTime+t+0.25);
 });
 } catch(e) {}
 }
 
+function parseApiEvents(apiData, sportInfo) {
+var events = [];
+if (!apiData || !Array.isArray(apiData)) return events;
+apiData.forEach(function(game) {
+if (!game.bookmakers || game.bookmakers.length < 2) return;
+var odds = {};
+game.bookmakers.forEach(function(bm) {
+var market = bm.markets && bm.markets.find(function(m) { return m.key === "h2h"; });
+if (!market) return;
+var homeOdd = null; var awayOdd = null; var drawOdd = null;
+market.outcomes.forEach(function(outcome) {
+if (outcome.name === game.home_team) homeOdd = outcome.price;
+else if (outcome.name === game.away_team) awayOdd = outcome.price;
+else drawOdd = outcome.price;
+});
+if (homeOdd && awayOdd) {
+var entry = { home: homeOdd, away: awayOdd };
+if (drawOdd) entry.draw = drawOdd;
+odds[bm.key] = entry;
+}
+});
+if (Object.keys(odds).length < 2) return;
+var d = new Date(game.commence_time);
+var timeStr = d.toLocaleDateString("es-CO", { weekday: "short" }) + " " + d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+events.push({ id: game.id, sport: sportInfo.sport, league: sportInfo.label, home: game.home_team, away: game.away_team, time: timeStr, odds: odds });
+});
+return events;
+}
+
 function AlertToast(props) {
-var alert = props.alert;
-var onDismiss = props.onDismiss;
-var onOpenTabs = props.onOpenTabs;
-var stake = props.stake;
+var alert = props.alert; var onDismiss = props.onDismiss;
+var onOpenTabs = props.onOpenTabs; var stake = props.stake;
 var [progress, setProgress] = useState(100);
 var DURATION = 30000;
-
 useEffect(function() {
 var start = Date.now();
 var iv = setInterval(function() {
-var p = Math.max(0, 100 - ((Date.now() - start) / DURATION) * 100);
+var p = Math.max(0, 100 - ((Date.now()-start)/DURATION)*100);
 setProgress(p);
 if (p === 0) { clearInterval(iv); onDismiss(alert.id); }
-}, 100);
+}, 200);
 return function() { clearInterval(iv); };
 }, []);
-
 var bestOdds = getBestOdds(alert.event);
 var stakes = calcStakes(bestOdds, stake);
 var labels = { home: alert.event.home, draw: "Empate", away: alert.event.away };
-var s = Math.ceil((progress / 100) * (DURATION / 1000));
+var s = Math.ceil((progress/100)*(DURATION/1000));
 var profit = Math.round(stake * Math.abs(alert.margin) / 100);
-
 return (
-<div style={{
-background: "linear-gradient(135deg,#001a0f,#001530)",
-border: "1px solid #00e5a060",
-borderLeft: "4px solid #00e5a0",
-borderRadius: 14,
-padding: "14px 16px",
-marginBottom: 10,
-boxShadow: "0 8px 40px rgba(0,229,160,.15)",
-position: "relative",
-overflow: "hidden"
-}}>
+<div style={{ background: "linear-gradient(135deg,#001a0f,#001530)", border: "1px solid #00e5a060", borderLeft: "4px solid #00e5a0", borderRadius: 14, padding: "14px 16px", marginBottom: 10, boxShadow: "0 8px 40px rgba(0,229,160,.15)", position: "relative", overflow: "hidden" }}>
 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
 <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-<span style={{ background: "#00e5a0", color: "#001a0f", fontSize: 9, fontWeight: 900, padding: "2px 7px", borderRadius: 5 }}>
-SUREBET
-</span>
+<span style={{ background: "#00e5a0", color: "#001a0f", fontSize: 9, fontWeight: 900, padding: "2px 7px", borderRadius: 5 }}>SUREBET REAL</span>
 <span style={{ fontSize: 10, color: "#4aaa80" }}>{alert.event.league}</span>
 </div>
 <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
@@ -237,16 +139,14 @@ SUREBET
 <button onClick={function() { onDismiss(alert.id); }} style={{ background: "transparent", border: "none", color: "#2a5a3a", cursor: "pointer", fontSize: 15 }}>X</button>
 </div>
 </div>
-<div style={{ fontSize: 15, fontWeight: 700, color: "#e8f4ff", marginBottom: 10 }}>
-{alert.event.home} vs {alert.event.away}
-</div>
+<div style={{ fontSize: 15, fontWeight: 700, color: "#e8f4ff", marginBottom: 10 }}>{alert.event.home} vs {alert.event.away}</div>
 <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
 {Object.entries(bestOdds).map(function(entry) {
 var outcome = entry[0]; var data = entry[1];
 return (
 <div key={outcome} style={{ background: "rgba(0,229,160,.08)", border: "1px solid #00e5a020", borderRadius: 7, padding: "6px 10px", flex: 1, minWidth: 75 }}>
-<div style={{ fontSize: 9, color: "#00a070", textTransform: "uppercase" }}>{labels[outcome] || outcome}</div>
-<div style={{ fontSize: 13, fontWeight: 700, color: "#00e5a0", fontFamily: "monospace" }}>${(stakes[outcome] || 0).toLocaleString("es-CO")}</div>
+<div style={{ fontSize: 9, color: "#00a070", textTransform: "uppercase" }}>{labels[outcome]||outcome}</div>
+<div style={{ fontSize: 13, fontWeight: 700, color: "#00e5a0", fontFamily: "monospace" }}>${(stakes[outcome]||0).toLocaleString("es-CO")}</div>
 <div style={{ fontSize: 9, color: "#005535" }}>{data.odd.toFixed(2)} - {data.book}</div>
 </div>
 );
@@ -257,13 +157,11 @@ return (
 <div style={{ fontSize: 9, color: "#005535" }}>{Math.abs(alert.margin).toFixed(2)}%</div>
 </div>
 </div>
-<button
-onClick={function() { onOpenTabs(alert.event, bestOdds); }}
-style={{ width: "100%", background: "#00e5a0", color: "#001a0f", border: "none", borderRadius: 8, padding: "10px", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>
+<button onClick={function() { onOpenTabs(alert.event, bestOdds); }} style={{ width: "100%", background: "#00e5a0", color: "#001a0f", border: "none", borderRadius: 8, padding: "10px", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>
 Abrir casas ahora
 </button>
 <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: "#001a10" }}>
-<div style={{ height: "100%", background: "#00e5a0", width: progress + "%", transition: "width .1s linear" }} />
+<div style={{ height: "100%", background: "#00e5a0", width: progress + "%", transition: "width .2s linear" }} />
 </div>
 </div>
 );
@@ -272,45 +170,30 @@ Abrir casas ahora
 function OddsTable(props) {
 var event = props.event;
 var isTwoWay = !Object.values(event.odds)[0].draw;
-var outcomes = isTwoWay ? ["home", "away"] : ["home", "draw", "away"];
+var outcomes = isTwoWay ? ["home","away"] : ["home","draw","away"];
 var labels = { home: event.home, draw: "Empate", away: event.away };
 var maxOdds = {};
-outcomes.forEach(function(o) {
-maxOdds[o] = Math.max.apply(null, Object.values(event.odds).map(function(b) { return b[o] || 0; }));
-});
-
+outcomes.forEach(function(o) { maxOdds[o] = Math.max.apply(null, Object.values(event.odds).map(function(b) { return b[o]||0; })); });
 return (
 <div style={{ overflowX: "auto", marginTop: 12 }}>
 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
 <thead>
 <tr>
 <th style={{ padding: "6px 10px", textAlign: "left", color: "#2a4a6a", fontSize: 10, fontWeight: 700, borderBottom: "1px solid #0a1828" }}>Casa</th>
-{outcomes.map(function(o) {
-return <th key={o} style={{ padding: "6px 10px", textAlign: "left", color: "#2a4a6a", fontSize: 10, fontWeight: 700, borderBottom: "1px solid #0a1828" }}>{labels[o]}</th>;
-})}
+{outcomes.map(function(o) { return <th key={o} style={{ padding: "6px 10px", textAlign: "left", color: "#2a4a6a", fontSize: 10, fontWeight: 700, borderBottom: "1px solid #0a1828" }}>{labels[o]}</th>; })}
 </tr>
 </thead>
 <tbody>
 {Object.entries(event.odds).map(function(entry) {
-var book = entry[0]; var odds = entry[1];
-var bm = BOOKMAKERS_CO[book] || {};
+var book = entry[0]; var odds = entry[1]; var bm = getBM(book);
 return (
 <tr key={book} style={{ borderBottom: "1px solid #080f18" }}>
 <td style={{ padding: "6px 10px" }}>
-<a href={bm.url || "#"} target="_blank" rel="noreferrer"
-style={{ color: bm.color || "#7eb8f7", textDecoration: "none", fontWeight: 700, fontSize: 12 }}
-onClick={function(e) { e.stopPropagation(); }}>
-{book}
-</a>
+<a href={bm.url} target="_blank" rel="noreferrer" style={{ color: bm.color, textDecoration: "none", fontWeight: 700, fontSize: 12 }} onClick={function(e) { e.stopPropagation(); }}>{book}</a>
 </td>
 {outcomes.map(function(o) {
-var val = odds[o];
-var isMax = val === maxOdds[o];
-return (
-<td key={o} style={{ padding: "6px 10px", color: isMax ? "#00e5a0" : "#6a8aaa", fontWeight: isMax ? 700 : 400, background: isMax ? "rgba(0,229,160,.05)" : "transparent" }}>
-{val ? val.toFixed(2) : "-"}
-</td>
-);
+var val = odds[o]; var isMax = val === maxOdds[o];
+return <td key={o} style={{ padding: "6px 10px", color: isMax ? "#00e5a0" : "#6a8aaa", fontWeight: isMax ? 700 : 400, background: isMax ? "rgba(0,229,160,.05)" : "transparent" }}>{val ? val.toFixed(2) : "-"}</td>;
 })}
 </tr>
 );
@@ -322,137 +205,98 @@ return (
 }
 
 function EventCard(props) {
-var event = props.event;
-var stake = props.stake;
-var expanded = props.expanded;
-var onToggle = props.onToggle;
-var onOpenTabs = props.onOpenTabs;
-
+var event = props.event; var stake = props.stake;
+var expanded = props.expanded; var onToggle = props.onToggle; var onOpenTabs = props.onOpenTabs;
 var bestOdds = getBestOdds(event);
 var arb = calcArbitrage(bestOdds);
-var margin = arb.margin;
-var isSure = arb.isSure;
+var margin = arb.margin; var isSure = arb.isSure;
 var stakes = calcStakes(bestOdds, stake);
 var labels = { home: event.home, draw: "Empate", away: event.away };
 var profit = isSure ? Math.round(stake * Math.abs(margin) / 100) : null;
 var uniqueBooks = [];
-Object.values(bestOdds).forEach(function(o) {
-if (uniqueBooks.indexOf(o.book) === -1) uniqueBooks.push(o.book);
-});
-
+Object.values(bestOdds).forEach(function(o) { if (uniqueBooks.indexOf(o.book) === -1) uniqueBooks.push(o.book); });
 return (
-<div onClick={onToggle} style={{
-background: isSure ? "linear-gradient(135deg,#071812,#0a1624)" : "#090f1c",
-border: isSure ? "1px solid #00e5a025" : "1px solid #0c1a28",
-borderLeft: isSure ? "3px solid #00e5a0" : "3px solid #1a3050",
-borderRadius: 12,
-padding: "14px 16px",
-marginBottom: 8,
-cursor: "pointer",
-position: "relative"
-}}>
-{isSure && (
-<div style={{ position: "absolute", top: 0, right: 0, background: "#00e5a0", color: "#001a0f", fontSize: 9, fontWeight: 900, padding: "3px 10px", borderBottomLeftRadius: 8 }}>
-SUREBET
-</div>
-)}
+<div onClick={onToggle} style={{ background: isSure ? "linear-gradient(135deg,#071812,#0a1624)" : "#090f1c", border: isSure ? "1px solid #00e5a025" : "1px solid #0c1a28", borderLeft: isSure ? "3px solid #00e5a0" : "3px solid #1a3050", borderRadius: 12, padding: "14px 16px", marginBottom: 8, cursor: "pointer", position: "relative" }}>
+{isSure && <div style={{ position: "absolute", top: 0, right: 0, background: "#00e5a0", color: "#001a0f", fontSize: 9, fontWeight: 900, padding: "3px 10px", borderBottomLeftRadius: 8 }}>SUREBET</div>}
 <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
 <div>
 <div style={{ fontSize: 10, color: "#2a5a7a", marginBottom: 3 }}>{event.sport} - {event.league} - {event.time}</div>
-<div style={{ fontSize: 16, fontWeight: 700, color: "#ddeeff" }}>
-{event.home} vs {event.away}
-</div>
+<div style={{ fontSize: 15, fontWeight: 700, color: "#ddeeff" }}>{event.home} vs {event.away}</div>
 </div>
 <div style={{ textAlign: "right" }}>
-<div style={{ fontSize: 20, fontWeight: 800, fontFamily: "monospace", color: isSure ? "#00e5a0" : margin < -15 ? "#ff6b6b" : "#ffd166" }}>
-{margin > 0 ? "+" : ""}{margin.toFixed(2)}%
-</div>
+<div style={{ fontSize: 20, fontWeight: 800, fontFamily: "monospace", color: isSure ? "#00e5a0" : margin < -15 ? "#ff6b6b" : "#ffd166" }}>{margin > 0 ? "+" : ""}{margin.toFixed(2)}%</div>
 <div style={{ fontSize: 9, color: "#2a4a6a" }}>{isSure ? "ganancia garantizada" : "margen casa"}</div>
 </div>
 </div>
+<div style={{ display: "flex", gap: 6, marginTop: 12, flexWrap: "wrap" }}>
+{Object.entries(bestOdds).map(function(entry) {
+var outcome = entry[0]; var data = entry[1]; var bm = getBM(data.book);
+return (
+<div key={outcome} style={{ background: "#060e1a", border: "1px solid #0c1a28", borderRadius: 7, padding: "6px 10px", flex: 1, minWidth: 80 }}>
+<div style={{ fontSize: 9, color: "#2a5a7a", textTransform: "uppercase", marginBottom: 2 }}>{labels[outcome]||outcome}</div>
+<div style={{ fontSize: 16, fontWeight: 700, color: "#7eb8f7", fontFamily: "monospace" }}>{data.odd.toFixed(2)}</div>
+<div style={{ fontSize: 9, color: bm.color, fontWeight: 700, marginTop: 2 }}>{data.book}</div>
+</div>
+);
+})}
+</div>
+{expanded && (
+<div style={{ borderTop: "1px solid #0c1a28", paddingTop: 14, marginTop: 12 }}>
+{isSure && (
+<div>
+<div style={{ fontSize: 10, color: "#2a5a7a", textTransform: "uppercase", marginBottom: 8 }}>Apuesta total: ${stake.toLocaleString("es-CO")} COP</div>
+<div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+{Object.entries(stakes).map(function(entry) {
+var outcome = entry[0]; var s = entry[1];
+return (
+<div key={outcome} style={{ background: "rgba(0,229,160,.06)", border: "1px solid #00e5a020", borderRadius: 7, padding: "8px 10px", flex: 1, minWidth: 80 }}>
+<div style={{ fontSize: 9, color: "#00a070", textTransform: "uppercase" }}>{labels[outcome]||outcome}</div>
+<div style={{ fontSize: 14, fontWeight: 700, color: "#00e5a0", fontFamily: "monospace" }}>${s.toLocaleString("es-CO")}</div>
+<div style={{ fontSize: 9, color: "#004a30" }}>en {bestOdds[outcome].book}</div>
+</div>
+);
+})}
+<div style={{ background: "rgba(0,229,160,.1)", border: "1px solid #00e5a030", borderRadius: 7, padding: "8px 10px", flex: 1, minWidth: 80 }}>
+<div style={{ fontSize: 9, color: "#00a070", textTransform: "uppercase" }}>Ganancia</div>
+<div style={{ fontSize: 14, fontWeight: 700, color: "#00e5a0", fontFamily: "monospace" }}>${profit.toLocaleString("es-CO")}</div>
+<div style={{ fontSize: 9, color: "#004a30" }}>garantizada</div>
+</div>
+</div>
+<button onClick={function(e) { e.stopPropagation(); onOpenTabs(event, bestOdds); }} style={{ width: "100%", background: "#00e5a0", color: "#001a0f", border: "none", borderRadius: 8, padding: "11px", fontWeight: 800, fontSize: 13, cursor: "pointer", marginBottom: 12 }}>
+Abrir {uniqueBooks.length} casas de apuesta
+</button>
+</div>
+)}
+<div style={{ fontSize: 10, color: "#2a5a7a", textTransform: "uppercase", marginBottom: 6 }}>Comparativa de cuotas</div>
+<OddsTable event={event} />
+</div>
+)}
+<div style={{ textAlign: "center", marginTop: 8, fontSize: 10, color: "#1a3050" }}>{expanded ? "ocultar" : "ver detalle"}</div>
+</div>
+);
+}
 
-  <div style={{ display: "flex", gap: 6, marginTop: 12, flexWrap: "wrap" }}>
-    {Object.entries(bestOdds).map(function(entry) {
-      var outcome = entry[0]; var data = entry[1];
-      var bm = BOOKMAKERS_CO[data.book] || {};
-      return (
-        <div key={outcome} style={{ background: "#060e1a", border: "1px solid #0c1a28", borderRadius: 7, padding: "6px 10px", flex: 1, minWidth: 80 }}>
-          <div style={{ fontSize: 9, color: "#2a5a7a", textTransform: "uppercase", marginBottom: 2 }}>{labels[outcome] || outcome}</div>
-          <div style={{ fontSize: 16, fontWeight: 700, color: "#7eb8f7", fontFamily: "monospace" }}>{data.odd.toFixed(2)}</div>
-          <div style={{ fontSize: 9, color: bm.color || "#4a7a9b", fontWeight: 700, marginTop: 2 }}>{data.book}</div>
-        </div>
-      );
-    })}
-  </div>
-
-  {expanded && (
-    <div style={{ borderTop: "1px solid #0c1a28", paddingTop: 14, marginTop: 12 }}>
-      {isSure && (
-        <div>
-          <div style={{ fontSize: 10, color: "#2a5a7a", textTransform: "uppercase", marginBottom: 8 }}>
-            Distribucion de apuesta - Total: ${stake.toLocaleString("es-CO")} COP
-          </div>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-            {Object.entries(stakes).map(function(entry) {
-              var outcome = entry[0]; var s = entry[1];
-              return (
-                <div key={outcome} style={{ background: "rgba(0,229,160,.06)", border: "1px solid #00e5a020", borderRadius: 7, padding: "8px 10px", flex: 1, minWidth: 80 }}>
-                  <div style={{ fontSize: 9, color: "#00a070", textTransform: "uppercase" }}>{labels[outcome] || outcome}</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "#00e5a0", fontFamily: "monospace" }}>${s.toLocaleString("es-CO")}</div>
-                  <div style={{ fontSize: 9, color: "#004a30" }}>en {bestOdds[outcome].book}</div>
-                </div>
-              );
-            })}
-            <div style={{ background: "rgba(0,229,160,.1)", border: "1px solid #00e5a030", borderRadius: 7, padding: "8px 10px", flex: 1, minWidth: 80 }}>
-              <div style={{ fontSize: 9, color: "#00a070", textTransform: "uppercase" }}>Ganancia</div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#00e5a0", fontFamily: "monospace" }}>${profit.toLocaleString("es-CO")}</div>
-              <div style={{ fontSize: 9, color: "#004a30" }}>garantizada</div>
-            </div>
-          </div>
-          <button
-            onClick={function(e) { e.stopPropagation(); onOpenTabs(event, bestOdds); }}
-            style={{ width: "100%", background: "#00e5a0", color: "#001a0f", border: "none", borderRadius: 8, padding: "11px", fontWeight: 800, fontSize: 13, cursor: "pointer", marginBottom: 12 }}>
-            Abrir {uniqueBooks.length} casas colombianas
-          </button>
-          <div style={{ fontSize: 10, color: "#2a5a7a", textTransform: "uppercase", marginBottom: 8 }}>Como retirar en cada casa</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 12 }}>
-            {uniqueBooks.map(function(book) {
-              var bm = BOOKMAKERS_CO[book];
-              if (!bm) return null;
-              return (
-                <div key={book} style={{ background: "#060e1a", border: "1px solid #0c1a28", borderRadius: 7, padding: "8px 12px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 6 }}>
-                    <div>
-                      <span style={{ color: bm.color, fontWeight: 700, fontSize: 12 }}>{book}</span>
-                      <span style={{ color: "#2a5a7a", fontSize: 10, marginLeft: 8 }}>{bm.nota}</span>
-                    </div>
-                    <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
-                      {bm.metodos.slice(0, 3).map(function(m) {
-                        return <span key={m} style={{ background: "#0a1828", border: "1px solid #1a2a3a", borderRadius: 4, padding: "2px 6px", fontSize: 9, color: "#6a8aaa" }}>{m}</span>;
-                      })}
-                    </div>
-                  </div>
-                  <div style={{ fontSize: 10, color: "#2a5a7a", marginTop: 4 }}>Retiro: {bm.retiro} - Min: {bm.minRetiro}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-      <div style={{ fontSize: 10, color: "#2a5a7a", textTransform: "uppercase", marginBottom: 6 }}>Comparativa de cuotas</div>
-      <OddsTable event={event} />
-    </div>
-  )}
-  <div style={{ textAlign: "center", marginTop: 8, fontSize: 10, color: "#1a3050" }}>
-    {expanded ? "ocultar" : "ver detalle"}
-  </div>
+function SportToggle(props) {
+var sport = props.sport; var active = props.active; var onChange = props.onChange;
+return (
+<div onClick={function() { onChange(sport.key); }} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", borderBottom: "1px solid #080f18", cursor: "pointer" }}>
+<div>
+<span style={{ color: active ? "#e8f4ff" : "#2a4a6a", fontWeight: active ? 600 : 400, fontSize: 13 }}>{sport.label}</span>
+<span style={{ color: "#1a3a5a", fontSize: 10, marginLeft: 8 }}>{sport.sport}</span>
+</div>
+<div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+<span style={{ fontSize: 10, color: active ? "#00a070" : "#1a3a5a" }}>1 peticion/scan</span>
+<div style={{ width: 36, height: 20, borderRadius: 10, background: active ? "#00e5a0" : "#0e1e30", position: "relative", transition: "background .2s", flexShrink: 0 }}>
+<div style={{ position: "absolute", top: 2, left: active ? 18 : 2, width: 16, height: 16, borderRadius: "50%", background: active ? "#001a0f" : "#2a4a6a", transition: "left .2s" }} />
+</div>
+</div>
 </div>
 );
 }
 
 function BookmakerCard(props) {
-var name = props.name;
-var bm = BOOKMAKERS_CO[name];
+var name = props.name; var bm = BOOKMAKERS_CO[name];
+if (!bm) return null;
 return (
 <div style={{ background: "#090f1c", border: "1px solid #0c1a28", borderLeft: "3px solid " + bm.color, borderRadius: 10, padding: "12px 14px" }}>
 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
@@ -462,105 +306,107 @@ return (
 <span style={{ background: "#0a1a2a", color: "#4a8aba", fontSize: 9, padding: "2px 6px", borderRadius: 4 }}>Coljuegos</span>
 </div>
 </div>
-<div style={{ fontSize: 11, color: "#6a8aaa", marginBottom: 8 }}>{bm.nota}</div>
 <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginBottom: 8 }}>
-{bm.metodos.map(function(m) {
-return <span key={m} style={{ background: "#0a1828", border: "1px solid #1a2a3a", borderRadius: 5, padding: "3px 8px", fontSize: 10, color: "#8abaaa" }}>{m}</span>;
-})}
+{bm.metodos.map(function(m) { return <span key={m} style={{ background: "#0a1828", border: "1px solid #1a2a3a", borderRadius: 5, padding: "3px 8px", fontSize: 10, color: "#8abaaa" }}>{m}</span>; })}
 </div>
 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 <div style={{ fontSize: 10, color: "#2a5a7a" }}>Retiro: {bm.retiro} - Min: {bm.minRetiro}</div>
-<a href={bm.url} target="_blank" rel="noreferrer"
-style={{ background: bm.color, color: "#fff", borderRadius: 6, padding: "5px 12px", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>
-Abrir
-</a>
+<a href={bm.url} target="_blank" rel="noreferrer" style={{ background: bm.color, color: "#fff", borderRadius: 6, padding: "5px 12px", fontSize: 11, fontWeight: 700, textDecoration: "none" }}>Abrir</a>
 </div>
 </div>
 );
 }
 
 export default function SurebetRadarCO() {
-var [events, setEvents] = useState(BASE_EVENTS);
+var [sports, setSports] = useState(ALL_SPORTS);
+var [events, setEvents] = useState([]);
+var [loading, setLoading] = useState(true);
+var [error, setError] = useState(null);
+var [requestsLeft, setRequestsLeft] = useState(null);
 var [stake, setStake] = useState(50000);
 var [expandedId, setExpandedId] = useState(null);
 var [alerts, setAlerts] = useState([]);
 var [history, setHistory] = useState([]);
 var [tab, setTab] = useState("live");
-var [lastScan, setLastScan] = useState(new Date());
+var [lastScan, setLastScan] = useState(null);
 var [scanning, setScanning] = useState(false);
 var [soundOn, setSoundOn] = useState(true);
 var [filterSport, setFilterSport] = useState("Todos");
 var prevSurebets = useRef(new Set());
 
+var activeSports = sports.filter(function(s) { return s.active; });
+var peticionesPorScan = activeSports.length;
+
+var toggleSport = function(key) {
+setSports(function(prev) {
+return prev.map(function(s) {
+return s.key === key ? Object.assign({}, s, { active: !s.active }) : s;
+});
+});
+};
+
 var openBookmakerTabs = useCallback(function(event, bestOdds) {
 var books = [];
-Object.values(bestOdds).forEach(function(o) {
-if (books.indexOf(o.book) === -1) books.push(o.book);
-});
-books.forEach(function(book, i) {
-setTimeout(function() {
-var url = (BOOKMAKERS_CO[book] && BOOKMAKERS_CO[book].url) || "#";
-window.open(url, "*sb*" + book);
-}, i * 400);
-});
+Object.values(bestOdds).forEach(function(o) { if (books.indexOf(o.book) === -1) books.push(o.book); });
+books.forEach(function(book, i) { setTimeout(function() { window.open(getBM(book).url, "*sb*" + book); }, i * 400); });
 }, []);
 
 var triggerAlert = useCallback(function(event, margin) {
 if (soundOn) playAlert();
-var newAlert = { id: Date.now(), event: event, margin: margin };
-setAlerts(function(prev) { return [newAlert].concat(prev).slice(0, 4); });
+setAlerts(function(prev) { return [{ id: Date.now(), event: event, margin: margin }].concat(prev).slice(0, 4); });
 setHistory(function(prev) {
-return [{
-id: Date.now(),
-time: new Date().toLocaleTimeString(),
-match: event.home + " vs " + event.away,
-league: event.league,
-margin: margin,
-profit: Math.round(stake * Math.abs(margin) / 100)
-}].concat(prev).slice(0, 50);
+return [{ id: Date.now(), time: new Date().toLocaleTimeString(), match: event.home + " vs " + event.away, league: event.league, margin: margin, profit: Math.round(stake * Math.abs(margin) / 100) }].concat(prev).slice(0, 50);
 });
 }, [soundOn, stake]);
 
-useEffect(function() {
-var iv = setInterval(function() {
+var fetchOdds = useCallback(function() {
+if (!API_KEY) { setError("Falta VITE_ODDS_API_KEY en Vercel Settings"); setLoading(false); return; }
+var currentActive = sports.filter(function(s) { return s.active; });
+if (currentActive.length === 0) { setEvents([]); setLoading(false); return; }
 setScanning(true);
-setTimeout(function() { setScanning(false); }, 500);
-setEvents(function(prev) {
-var updated = prev.map(function(e) {
-return Object.assign({}, e, {
-odds: Object.fromEntries(Object.entries(e.odds).map(function(entry) {
-var book = entry[0]; var odds = entry[1];
-return [book, Object.fromEntries(Object.entries(odds).map(function(pair) {
-var o = pair[0]; var v = pair[1];
-return [o, Math.max(1.05, parseFloat((v + (Math.random() - 0.48) * 0.1).toFixed(2)))];
-}))];
-}))
-});
-});
-updated.forEach(function(e) {
+var allEvents = [];
+var pending = currentActive.length;
+currentActive.forEach(function(sportInfo) {
+var url = API_BASE + "/sports/" + sportInfo.key + "/odds?apiKey=" + API_KEY + "&regions=eu&markets=h2h&oddsFormat=decimal";
+fetch(url)
+.then(function(res) {
+var remaining = res.headers.get("x-requests-remaining");
+if (remaining) setRequestsLeft(parseInt(remaining));
+if (!res.ok) throw new Error("Error " + res.status);
+return res.json();
+})
+.then(function(data) { allEvents = allEvents.concat(parseApiEvents(data, sportInfo)); })
+.catch(function(err) { console.warn("Error " + sportInfo.key + ":", err.message); })
+.finally(function() {
+pending;
+if (pending === 0) {
+setEvents(function() {
+allEvents.forEach(function(e) {
 var best = getBestOdds(e);
 var result = calcArbitrage(best);
-if (result.isSure && !prevSurebets.current.has(e.id)) {
-prevSurebets.current.add(e.id);
-triggerAlert(e, result.margin);
-} else if (!result.isSure) {
-prevSurebets.current.delete(e.id);
+if (result.isSure && !prevSurebets.current.has(e.id)) { prevSurebets.current.add(e.id); triggerAlert(e, result.margin); }
+else if (!result.isSure) prevSurebets.current.delete(e.id);
+});
+return allEvents;
+});
+setLoading(false); setScanning(false); setLastScan(new Date()); setError(null);
 }
 });
-return updated;
 });
-setLastScan(new Date());
-}, 5000);
-return function() { clearInterval(iv); };
-}, [triggerAlert]);
+}, [sports, triggerAlert]);
 
-var sports = ["Todos"].concat([... new Set(BASE_EVENTS.map(function(e) { return e.sport; }))]);
+useEffect(function() { fetchOdds(); }, []);
+
+useEffect(function() {
+var iv = setInterval(function() { fetchOdds(); }, 60000);
+return function() { clearInterval(iv); };
+}, [fetchOdds]);
+
+var sportFilters = ["Todos"].concat(Array.from(new Set(activeSports.map(function(s) { return s.sport; }))));
 
 var filtered = events
 .filter(function(e) { return filterSport === "Todos" || e.sport === filterSport; })
-.sort(function(a, b) {
-return calcArbitrage(getBestOdds(b)).margin - calcArbitrage(getBestOdds(a)).margin;
-});
+.sort(function(a, b) { return calcArbitrage(getBestOdds(b)).margin - calcArbitrage(getBestOdds(a)).margin; });
 
 var surebetCount = events.filter(function(e) { return calcArbitrage(getBestOdds(e)).isSure; }).length;
 var totalProfit = history.reduce(function(a, h) { return a + h.profit; }, 0);
@@ -570,11 +416,7 @@ return (
 {alerts.length > 0 && (
 <div style={{ position: "fixed", top: 12, right: 12, zIndex: 300, width: 330, maxWidth: "calc(100vw - 24px)" }}>
 {alerts.map(function(a) {
-return (
-<AlertToast key={a.id} alert={a} stake={stake}
-onDismiss={function(id) { setAlerts(function(p) { return p.filter(function(x) { return x.id !== id; }); }); }}
-onOpenTabs={openBookmakerTabs} />
-);
+return <AlertToast key={a.id} alert={a} stake={stake} onDismiss={function(id) { setAlerts(function(p) { return p.filter(function(x) { return x.id !== id; }); }); }} onOpenTabs={openBookmakerTabs} />;
 })}
 </div>
 )}
@@ -582,12 +424,11 @@ onOpenTabs={openBookmakerTabs} />
   <div style={{ background: "#060c16", borderBottom: "1px solid #0a1628", padding: "14px 16px", position: "sticky", top: 0, zIndex: 100 }}>
     <div style={{ maxWidth: 860, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
       <div>
-        <div style={{ fontSize: 20, fontWeight: 800, color: "#e8f4ff" }}>
-          SureBet<span style={{ color: "#00e5a0" }}>Radar</span> CO
-        </div>
+        <div style={{ fontSize: 20, fontWeight: 800, color: "#e8f4ff" }}>SureBet<span style={{ color: "#00e5a0" }}>Radar</span> CO</div>
         <div style={{ fontSize: 9, color: "#1a4060", display: "flex", alignItems: "center", gap: 4 }}>
           <span style={{ width: 5, height: 5, borderRadius: "50%", background: scanning ? "#ffd166" : "#00e5a0", display: "inline-block" }} />
-          {scanning ? "escaneando..." : lastScan.toLocaleTimeString()} - Coljuegos
+          {scanning ? "actualizando..." : lastScan ? lastScan.toLocaleTimeString() : "cargando..."}
+          {requestsLeft !== null && <span style={{ marginLeft: 6 }}>- {requestsLeft} peticiones restantes</span>}
         </div>
       </div>
       <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
@@ -603,79 +444,69 @@ onOpenTabs={openBookmakerTabs} />
             <div style={{ fontSize: 8, color: "#3a3000" }}>COP detectado</div>
           </div>
         )}
-        <button onClick={function() { setSoundOn(function(s) { return !s; }); }}
-          style={{ background: "transparent", border: "1px solid #0a1828", borderRadius: 7, padding: "8px 12px", color: soundOn ? "#00e5a0" : "#2a4a6a", fontSize: 16, cursor: "pointer" }}>
-          {soundOn ? "ON" : "OFF"}
-        </button>
+        <button onClick={function() { fetchOdds(); }} style={{ background: "#0e2a4a", border: "1px solid #2a6aaa", borderRadius: 7, padding: "8px 12px", color: "#7eb8f7", fontSize: 12, cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>Actualizar</button>
+        <button onClick={function() { setSoundOn(function(s) { return !s; }); }} style={{ background: "transparent", border: "1px solid #0a1828", borderRadius: 7, padding: "8px 12px", color: soundOn ? "#00e5a0" : "#2a4a6a", fontSize: 13, cursor: "pointer" }}>{soundOn ? "ON" : "OFF"}</button>
       </div>
     </div>
   </div>
 
   <div style={{ maxWidth: 860, margin: "0 auto", padding: "14px 12px" }}>
     <div style={{ display: "flex", gap: 2, borderBottom: "1px solid #0a1628", marginBottom: 16 }}>
-      {[
-        { key: "live", label: "En vivo" },
-        { key: "casas", label: "Casas CO" },
-        { key: "history", label: "Historial (" + history.length + ")" }
-      ].map(function(item) {
-        return (
-          <button key={item.key} onClick={function() { setTab(item.key); }} style={{
-            background: "transparent", border: "none",
-            borderBottom: tab === item.key ? "2px solid #00e5a0" : "2px solid transparent",
-            color: tab === item.key ? "#00e5a0" : "#2a5a7a",
-            padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer",
-            fontFamily: "inherit", marginBottom: -1
-          }}>{item.label}</button>
-        );
+      {[{ key: "live", label: "En vivo" }, { key: "deportes", label: "Deportes" }, { key: "casas", label: "Casas CO" }, { key: "history", label: "Historial (" + history.length + ")" }].map(function(item) {
+        return <button key={item.key} onClick={function() { setTab(item.key); }} style={{ background: "transparent", border: "none", borderBottom: tab === item.key ? "2px solid #00e5a0" : "2px solid transparent", color: tab === item.key ? "#00e5a0" : "#2a5a7a", padding: "8px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", marginBottom: -1 }}>{item.label}</button>;
       })}
     </div>
 
     {tab === "live" && (
       <div>
+        {error && <div style={{ background: "rgba(255,100,100,.1)", border: "1px solid #ff6b6b40", borderRadius: 8, padding: "12px 16px", marginBottom: 14, color: "#ff8888", fontSize: 12 }}>Error: {error}</div>}
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14, alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, background: "#080f18", border: "1px solid #0a1828", borderRadius: 7, padding: "7px 12px" }}>
             <span style={{ fontSize: 10, color: "#2a5a7a" }}>Stake: $</span>
-            <input type="number" value={stake}
-              onChange={function(e) { setStake(Math.max(5000, parseInt(e.target.value) || 5000)); }}
-              onClick={function(e) { e.stopPropagation(); }}
-              style={{ background: "transparent", border: "none", outline: "none", color: "#e8f4ff", fontWeight: 700, width: 80, fontSize: 14, fontFamily: "monospace" }} />
+            <input type="number" value={stake} onChange={function(e) { setStake(Math.max(5000, parseInt(e.target.value)||5000)); }} onClick={function(e) { e.stopPropagation(); }} style={{ background: "transparent", border: "none", outline: "none", color: "#e8f4ff", fontWeight: 700, width: 80, fontSize: 14, fontFamily: "monospace" }} />
             <span style={{ fontSize: 10, color: "#2a5a7a" }}>COP</span>
           </div>
-          {sports.map(function(s) {
-            return (
-              <button key={s} onClick={function() { setFilterSport(s); }} style={{
-                background: filterSport === s ? "#0e2a4a" : "transparent",
-                border: filterSport === s ? "1px solid #2a6aaa" : "1px solid #0a1828",
-                borderRadius: 7, padding: "7px 11px",
-                color: filterSport === s ? "#7eb8f7" : "#2a4a6a",
-                fontSize: 11, cursor: "pointer", fontFamily: "inherit", fontWeight: 600
-              }}>{s}</button>
-            );
+          {sportFilters.map(function(s) {
+            return <button key={s} onClick={function() { setFilterSport(s); }} style={{ background: filterSport === s ? "#0e2a4a" : "transparent", border: filterSport === s ? "1px solid #2a6aaa" : "1px solid #0a1828", borderRadius: 7, padding: "7px 11px", color: filterSport === s ? "#7eb8f7" : "#2a4a6a", fontSize: 11, cursor: "pointer", fontFamily: "inherit", fontWeight: 600 }}>{s}</button>;
           })}
         </div>
-        {filtered.map(function(e) {
-          return (
-            <EventCard key={e.id} event={e} stake={stake}
-              expanded={expandedId === e.id}
-              onToggle={function() { setExpandedId(function(id) { return id === e.id ? null : e.id; }); }}
-              onOpenTabs={openBookmakerTabs} />
-          );
+        {loading && <div style={{ textAlign: "center", padding: "60px 0", color: "#2a5a7a" }}>Cargando cuotas reales...</div>}
+        {!loading && filtered.length === 0 && (
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#2a5a7a" }}>
+            <div style={{ fontSize: 28, marginBottom: 8 }}>-</div>
+            <div>No hay eventos disponibles</div>
+            <div style={{ fontSize: 11, marginTop: 8, color: "#1a3a5a" }}>Activa mas deportes en la pestana "Deportes"</div>
+          </div>
+        )}
+        {!loading && filtered.map(function(e) {
+          return <EventCard key={e.id} event={e} stake={stake} expanded={expandedId === e.id} onToggle={function() { setExpandedId(function(id) { return id === e.id ? null : e.id; }); }} onOpenTabs={openBookmakerTabs} />;
         })}
+      </div>
+    )}
+
+    {tab === "deportes" && (
+      <div>
+        <div style={{ background: "#080f18", border: "1px solid #0a1828", borderRadius: 10, overflow: "hidden", marginBottom: 14 }}>
+          <div style={{ padding: "12px 14px", borderBottom: "1px solid #0a1828", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ fontSize: 13, color: "#c8d8e8", fontWeight: 600 }}>Deportes activos</div>
+            <div style={{ fontSize: 11, color: peticionesPorScan > 0 ? "#ffd166" : "#2a4a6a" }}>
+              {peticionesPorScan} peticion{peticionesPorScan !== 1 ? "es" : ""}/scan
+            </div>
+          </div>
+          {sports.map(function(s) { return <SportToggle key={s.key} sport={s} active={s.active} onChange={toggleSport} />; })}
+        </div>
+        <div style={{ background: "rgba(255,209,102,.05)", border: "1px solid #ffd16620", borderRadius: 10, padding: "12px 14px", fontSize: 11, color: "#8a7a40", lineHeight: 1.6 }}>
+          Con {peticionesPorScan} deporte{peticionesPorScan !== 1 ? "s" : ""} activo{peticionesPorScan !== 1 ? "s" : ""} y scan cada 60 seg, gastas {peticionesPorScan} peticiones/minuto.
+          Con 500 peticiones del plan gratuito tienes para {peticionesPorScan > 0 ? Math.floor(500 / peticionesPorScan) : 500} minutos de uso ({peticionesPorScan > 0 ? (Math.floor(500 / peticionesPorScan) / 60).toFixed(1) : "-"} horas).
+        </div>
       </div>
     )}
 
     {tab === "casas" && (
       <div>
-        <div style={{ fontSize: 11, color: "#2a5a7a", marginBottom: 14, lineHeight: 1.6 }}>
-          Todas con licencia Coljuegos - Deposito y retiro en pesos colombianos - Registro con cedula colombiana
-        </div>
+        <div style={{ fontSize: 11, color: "#2a5a7a", marginBottom: 14, lineHeight: 1.6 }}>Todas con licencia Coljuegos - Deposito y retiro en pesos - Registro con cedula colombiana</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {Object.keys(BOOKMAKERS_CO).map(function(name) {
-            return <BookmakerCard key={name} name={name} />;
-          })}
-        </div>
-        <div style={{ marginTop: 16, background: "rgba(255,209,102,.05)", border: "1px solid #ffd16620", borderRadius: 10, padding: "12px 14px", fontSize: 11, color: "#8a7a40" }}>
-          Tip: Abre cuentas en minimo 3-4 casas antes de empezar. Verifica tu identidad con cedula en todas. Usa Nequi o Daviplata para retiros mas rapidos.
+          {["Rushbet","Wplay","Betsson","Sportium","Rivalo","Luckia"].map(function(name) { return <BookmakerCard key={name} name={name} />; })}
         </div>
       </div>
     )}
@@ -685,7 +516,7 @@ onOpenTabs={openBookmakerTabs} />
         {history.length === 0 ? (
           <div style={{ padding: "40px", textAlign: "center", color: "#1a3a5a" }}>
             <div style={{ fontSize: 28, marginBottom: 8 }}>--</div>
-            <div>Aun no se han detectado surebets en esta sesion</div>
+            <div>Aun no se han detectado surebets</div>
           </div>
         ) : history.map(function(h) {
           return (
@@ -706,7 +537,7 @@ onOpenTabs={openBookmakerTabs} />
     )}
 
     <div style={{ textAlign: "center", padding: "20px 0 4px", fontSize: 10, color: "#0e1e2e" }}>
-      Solo fines educativos - Cuotas simuladas - Apuesta responsablemente - +18
+      Cuotas reales via The Odds API - Apuesta responsablemente - +18 - Coljuegos
     </div>
   </div>
 </div>
