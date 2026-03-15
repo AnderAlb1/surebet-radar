@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 
-const API_KEY = import.meta.env.VITE_ODDS_API_KEY;
+const API_KEY = "02daecad21992e7923491701827d3d59";
 const API_BASE = "https://api.the-odds-api.com/v4";
 
 const ALL_SPORTS = [
@@ -380,7 +380,7 @@ var allEvents = [];
 var pending = active.length;
 active.forEach(function(sportInfo) {
 
-var url = API_BASE + "/sports/" + sportInfo.key + "/odds?apiKey=" + API_KEY + "&regions=eu%2Cus&markets=h2h&oddsFormat=decimal";
+var url = API_BASE + "/sports/" + sportInfo.key + "/odds?apiKey=" + API_KEY + "&regions=eu,us&markets=h2h&oddsFormat=decimal";
 
 fetch(url)
 .then(function(res) {
